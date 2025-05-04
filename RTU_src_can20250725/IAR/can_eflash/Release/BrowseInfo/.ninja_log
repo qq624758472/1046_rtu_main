@@ -1,0 +1,11 @@
+# ninja log v5
+29	689	7679173750000000	C:/Users/holli/Desktop/1/RTU_src_can20250725_V2/RTU_src_can20250725/IAR/can_eflash/Release/BrowseInfo/Bsp_169489739208138388.dir/adc.xcl	5266f3904765dcb8
+691	940	7679173750000000	C:/Users/holli/Desktop/1/RTU_src_can20250725_V2/RTU_src_can20250725/IAR/can_eflash/Release/BrowseInfo/Bsp_169489739208138388.dir/canfd.xcl	773290f4abc86d70
+945	1202	7679173750000000	C:/Users/holli/Desktop/1/RTU_src_can20250725_V2/RTU_src_can20250725/IAR/can_eflash/Release/BrowseInfo/Bsp_169489739208138388.dir/canfd_xieyi.xcl	b0987199c4ca50c8
+1206	1537	7679173760000000	C:/Users/holli/Desktop/1/RTU_src_can20250725_V2/RTU_src_can20250725/IAR/can_eflash/Release/BrowseInfo/Bsp_169489739208138388.dir/uart_xingjian.xcl	9f25428968c00dd6
+1541	1914	7679173760000000	C:/Users/holli/Desktop/1/RTU_src_can20250725_V2/RTU_src_can20250725/IAR/can_eflash/Release/BrowseInfo/Bsp_169489739208138388.dir/onewire.xcl	2bbc6973a5387ca0
+1920	2286	7679173760000000	C:/Users/holli/Desktop/1/RTU_src_can20250725_V2/RTU_src_can20250725/IAR/can_eflash/Release/BrowseInfo/Bsp_169489739208138388.dir/uart_dianji.xcl	694558f1d862cc9c
+2296	2627	7679173770000000	C:/Users/holli/Desktop/1/RTU_src_can20250725_V2/RTU_src_can20250725/IAR/can_eflash/Release/BrowseInfo/Bsp_169489739208138388.dir/iic.xcl	70555a50a762cb97
+2634	2881	7679173770000000	C:/Users/holli/Desktop/1/RTU_src_can20250725_V2/RTU_src_can20250725/IAR/can_eflash/Release/BrowseInfo/Bsp_169489739208138388.dir/print.xcl	b93aaba1e57d3f3f
+2886	3972	7679173780000000	C:/Users/holli/Desktop/1/RTU_src_can20250725_V2/RTU_src_can20250725/IAR/can_eflash/Release/BrowseInfo/Bsp_169489739208138388.dir/gpio.xcl	ed526adb1db5b16b
+3984	4816	7679173790000000	C:/Users/holli/Desktop/1/RTU_src_can20250725_V2/RTU_src_can20250725/IAR/can_eflash/Release/BrowseInfo/Peripherals_13669465130343999232.dir/as32x601_cmu.xcl	e1913db8b840a790

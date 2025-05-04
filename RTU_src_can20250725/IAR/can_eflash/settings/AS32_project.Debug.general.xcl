@@ -1,0 +1,13 @@
+"C:\Program Files\IAR Systems\Embedded Workbench 9.2\riscv\bin\riscvproc.dll" 
+
+"C:\Program Files\IAR Systems\Embedded Workbench 9.2\riscv\bin\riscvijet.dll" 
+
+"C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Exe\AS32_project.out" 
+
+--plugin="C:\Program Files\IAR Systems\Embedded Workbench 9.2\riscv\bin\riscvbat.dll" 
+
+--flash_loader="C:\Program Files\IAR Systems\Embedded Workbench 9.2\riscv\config\flashloader\ANSILIC\AS32x601_InternalFlash.board" 
+
+
+
+

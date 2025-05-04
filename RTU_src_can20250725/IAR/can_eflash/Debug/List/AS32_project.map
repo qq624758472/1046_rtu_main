@@ -1,0 +1,984 @@
+###############################################################################
+#
+# IAR ELF Linker V3.30.1.3961/W64 for RISC-V              04/May/2025  12:36:47
+# Copyright 2019-2023 IAR Systems AB.
+#
+#    Output file  =
+#        C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Exe\AS32_project.out
+#    Map file     =
+#        C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\List\AS32_project.map
+#    Command line =
+#        -f
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Exe\AS32_project.out.rsp"
+#        ("C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Bsp_169489739208138388.dir\adc.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_adc.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_canfd.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_clint.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_cmu.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_core.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_crc.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_dac.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_dma.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_flash.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_gpio.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_i2c.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_iwdg.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_mac.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_mpu.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_plic.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_pmu.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_qspi.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_rtc.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_smu.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_spi.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Startup_17868067532763321386.dir\as32x601_startup.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_timer.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Core_2780535767142203951.dir\as32x601_trapentry.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_usart.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir\as32x601_wwdg.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Bsp_169489739208138388.dir\canfd.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Bsp_169489739208138388.dir\canfd_xieyi.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\System_896816979012834669.dir\delay.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Bsp_169489739208138388.dir\gpio.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Bsp_169489739208138388.dir\iic.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\User_4889033380472473340.dir\main.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\System_896816979012834669.dir\myprintf.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Bsp_169489739208138388.dir\onewire.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Bsp_169489739208138388.dir\print.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Bsp_169489739208138388.dir\uart_dianji.o"
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Bsp_169489739208138388.dir\uart_xingjian.o"
+#        --config_def CSTACK_SIZE=0x1000 --config_def HEAP_SIZE=0x1000
+#        --no_out_extension -o
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Exe\AS32_project.out"
+#        --map
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\List\AS32_project.map"
+#        --config "C:\Program Files\IAR Systems\Embedded Workbench
+#        9.2\riscv\config\linker\ANSILIC\AS32x601_InternalFlash.icf" --entry
+#        _start --vfe --text_out locale --debug_lib --core=RV32IMAF)
+#        --dependencies=n
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Exe\AS32_project.out.iar_deps"
+#
+###############################################################################
+
+*******************************************************************************
+*** RUNTIME MODEL ATTRIBUTES
+***
+
+__Heap_Handler               = Basic
+__SystemLibrary              = DLib
+__dlib_file_descriptor       = 0
+__dlib_full_locale_support   = 0
+__dlib_version               = 6
+__iar_optimize_for_size      = 1
+__iar_riscv_atomic           = *
+__iar_riscv_base_isa         = rv32i
+__iar_riscv_compact          = *
+__iar_riscv_div              = 1
+__iar_riscv_enum_size        = large
+__iar_riscv_extension_atomic = 1
+__iar_riscv_extension_div    = 1
+__iar_riscv_extension_mul    = 1
+__iar_riscv_f_version        = 2.2
+__iar_riscv_fpu              = fpu32
+__iar_riscv_i_version        = 2.0
+__iar_riscv_m_version        = 2.0
+__iar_riscv_mul              = 1
+__iar_riscv_xbcountzeroes    = *
+__iar_riscv_xlen             = 32
+__iar_riscv_zba              = *
+__iar_riscv_zbb              = *
+__iar_riscv_zbc              = *
+__iar_riscv_zbe              = *
+__iar_riscv_zbf              = *
+__iar_riscv_zbkb             = *
+__iar_riscv_zbkc             = *
+__iar_riscv_zbkx             = *
+__iar_riscv_zbm              = *
+__iar_riscv_zbp              = *
+__iar_riscv_zbr              = *
+__iar_riscv_zbs              = *
+__iar_riscv_zbt              = *
+__iar_riscv_zknd             = *
+__iar_riscv_zkne             = *
+__iar_riscv_zknh             = *
+__iar_riscv_zksed            = *
+__iar_riscv_zksh             = *
+__rt_version                 = 1
+
+
+*******************************************************************************
+*** HEAP SELECTION
+***
+
+The basic heap was selected because --advanced_heap
+was not specified and the application did not appear to
+be primarily optimized for speed.
+
+
+*******************************************************************************
+*** PLACEMENT SUMMARY
+***
+
+build for rom;
+"STARTUP":
+       place at start of [from 0x100'0000 to 0x13f'ffff] { ro section .init };
+define block RW_DATA_INIT { ro section .data_init };
+"ROM32":
+       place in [from 0x100'0000 to 0x13f'ffff] { ro, block RW_DATA_INIT };
+define block RW_DATA { rw section .data };
+define block RW_BSS { rw section .bss };
+define block RW_DATA_ALL { block RW_DATA, block RW_BSS };
+define block HEAP with size = 4K, alignment = 16 { };
+define block CSTACK with size = 4K, alignment = 16 { };
+"RAM32":
+       place in [from 0x2000'0000 to 0x2000'7fff] {
+          block RW_DATA_ALL, block HEAP, block CSTACK };
+initialize manually with packing = none { section .data };
+keep symbol __iar_cstart_init_gp;
+
+  Section              Kind         Address  Aligment    Size  Object
+  -------              ----         -------  --------    ----  ------
+"STARTUP":                                               0x8c
+  .init                ro code   0x100'0000        16    0x8c  as32x601_startup.o [4]
+                               - 0x100'008c              0x8c
+
+"ROM32":                                               0x9eec
+  .text                ro code   0x100'008c         4   0x5d4  adc.o [1]
+  .text                ro code   0x100'0660         4   0x280  as32x601_gpio.o [3]
+  .text                ro code   0x100'08e0         4    0x20  delay.o [5]
+  .text                ro code   0x100'0900         4    0x78  as32x601_adc.o [3]
+  .text                ro code   0x100'0978         4   0x3ac  as32x601_adc.o [3]
+  .text                ro code   0x100'0d24         4   0x19c  as32x601_adc.o [3]
+  .text                ro code   0x100'0ec0         4    0xc0  delay.o [5]
+  .text                ro code   0x100'0f80         4    0x24  as32x601_adc.o [3]
+  .text                ro code   0x100'0fa4         4    0x2c  delay.o [5]
+  .text                ro code   0x100'0fd0         4   0x51c  as32x601_canfd.o [3]
+  .text                ro code   0x100'14ec         4    0x78  memset_medium.o [9]
+  .jumptable           const     0x100'1564         4    0x40  as32x601_canfd.o [3]
+  .text                ro code   0x100'15a4         4   0x4d4  DblAddSub.o [10]
+  .text                ro code   0x100'1a78         4   0x370  canfd_xieyi.o [1]
+  .text                ro code   0x100'1de8         4   0x2f4  canfd_xieyi.o [1]
+  .jumptable           const     0x100'20dc         4    0x30  canfd_xieyi.o [1]
+  .text                ro code   0x100'210c         4   0x290  canfd_xieyi.o [1]
+  .text                ro code   0x100'239c         4   0x254  canfd_xieyi.o [1]
+  .text                ro code   0x100'25f0         4   0x180  canfd_xieyi.o [1]
+  .text                ro code   0x100'2770         4   0x104  gpio.o [1]
+  .text                ro code   0x100'2874         4   0x1d4  gpio.o [1]
+  .text                ro code   0x100'2a48         4   0x104  gpio.o [1]
+  .text                ro code   0x100'2b4c         4   0x250  gpio.o [1]
+  .text                ro code   0x100'2d9c         4   0x394  canfd_xieyi.o [1]
+  .text                ro code   0x100'3130         4    0xd0  uart_xingjian.o [1]
+  .text                ro code   0x100'3200         4   0x114  uart_dianji.o [1]
+  .text                ro code   0x100'3314         4    0xd8  canfd_xieyi.o [1]
+  .text                ro code   0x100'33ec         4    0x88  canfd_xieyi.o [1]
+  .rodata              const     0x100'3474         4    0x14  canfd_xieyi.o [1]
+  .text                ro code   0x100'3488         4   0x134  myprintf.o [5]
+  .text                ro code   0x100'35bc         4    0x68  canfd_xieyi.o [1]
+  .rodata              const     0x100'3624         4    0x1c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3640         4    0x20  canfd_xieyi.o [1]
+  .jumptable           const     0x100'3660         4    0x30  canfd_xieyi.o [1]
+  .rodata              const     0x100'3690         4    0x18  canfd_xieyi.o [1]
+  .text                ro code   0x100'36a8         4    0x30  heap0.o [11]
+  .rodata              const     0x100'36d8         4    0x28  canfd_xieyi.o [1]
+  .text                ro code   0x100'3700         4    0xec  memcpy_medium.o [9]
+  .text                ro code   0x100'37ec         4    0x20  canfd_xieyi.o [1]
+  .text                ro code   0x100'380c         4    0x30  save_restore.o [10]
+  .text                ro code   0x100'383c         4    0xbc  canfd_xieyi.o [1]
+  .text                ro code   0x100'38f8         4   0x178  as32x601_canfd.o [3]
+  .text                ro code   0x100'3a70         4    0x2c  save_restore.o [10]
+  .rodata              const     0x100'3a9c         4     0xc  gpio.o [1]
+  .rodata              const     0x100'3aa8         4    0x24  gpio.o [1]
+  .text                ro code   0x100'3acc         4    0x7c  as32x601_gpio.o [3]
+  .rodata              const     0x100'3b48         4    0x10  gpio.o [1]
+  .rodata              const     0x100'3b58         4    0x24  gpio.o [1]
+  .rodata              const     0x100'3b7c         4    0x2c  gpio.o [1]
+  .rodata              const     0x100'3ba8         4    0x1c  gpio.o [1]
+  .rodata              const     0x100'3bc4         4    0x1c  gpio.o [1]
+  .rodata              const     0x100'3be0         4    0x2c  gpio.o [1]
+  .jumptable           const     0x100'3c0c         4    0x40  gpio.o [1]
+  .rodata              const     0x100'3c4c         4    0x24  gpio.o [1]
+  .text                ro code   0x100'3c70         4    0x98  uart_xingjian.o [1]
+  .rodata              const     0x100'3d08         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3d34         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3d60         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3d8c         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3db8         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3de4         4    0x30  canfd_xieyi.o [1]
+  .rodata              const     0x100'3e14         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3e40         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3e6c         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3e98         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3ec4         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3ef0         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3f1c         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3f48         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3f74         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3fa0         4    0x2c  canfd_xieyi.o [1]
+  .rodata              const     0x100'3fcc         4    0x30  uart_xingjian.o [1]
+  .rodata              const     0x100'3ffc         4    0x38  uart_xingjian.o [1]
+  .rodata              const     0x100'4034         4    0x30  uart_xingjian.o [1]
+  .rodata              const     0x100'4064         4    0x38  uart_xingjian.o [1]
+  .rodata              const     0x100'409c         4    0x28  uart_xingjian.o [1]
+  .text                ro code   0x100'40c4         4    0x38  printf.o [11]
+  .rodata              const     0x100'40fc         4    0x1c  uart_dianji.o [1]
+  .rodata              const     0x100'4118         4    0x24  uart_dianji.o [1]
+  .text                ro code   0x100'413c         4    0x64  print.o [1]
+  .rodata              const     0x100'41a0         4    0x28  uart_dianji.o [1]
+  .text                ro code   0x100'41c8         4     0x4  heaptramp0.o [9]
+  .rodata              const     0x100'41cc         4    0x18  canfd_xieyi.o [1]
+  .rodata              const     0x100'41e4         4    0x28  canfd_xieyi.o [1]
+  .text                ro code   0x100'420c         4    0x34  myprintf.o [5]
+  .text                ro code   0x100'4240         4    0x4c  myprintf.o [5]
+  .text                ro code   0x100'428c         4    0x2c  myprintf.o [5]
+  .text                ro code   0x100'42b8         4    0x2c  myprintf.o [5]
+  .text                ro code   0x100'42e4         4    0x3c  myprintf.o [5]
+  .text                ro code   0x100'4320         4    0xc4  myprintf.o [5]
+  .text                ro code   0x100'43e4         4    0x4c  myprintf.o [5]
+  .text                ro code   0x100'4430         4   0x10c  heap0.o [11]
+  .text                ro code   0x100'453c         4   0x1b4  as32x601_canfd.o [3]
+  .rodata              const     0x100'46f0         4    0x14  as32x601_canfd.o [3]
+  .text                ro code   0x100'4704         4    0x30  as32x601_canfd.o [3]
+  .text                ro code   0x100'4734         4     0x8  as32x601_canfd.o [3]
+  .text                ro code   0x100'473c         4    0x14  as32x601_canfd.o [3]
+  .rodata              const     0x100'4750         4    0x20  as32x601_canfd.o [3]
+  .text                ro code   0x100'4770         4    0x74  as32x601_canfd.o [3]
+  .text                ro code   0x100'47e4         4   0x294  uart_xingjian.o [1]
+  .text                ro code   0x100'4a78         4   0x230  uart_xingjian.o [1]
+  .text                ro code   0x100'4ca8         4    0x74  uart_xingjian.o [1]
+  .text                ro code   0x100'4d1c         4    0x40  xprout.o [11]
+  .text                ro code   0x100'4d5c         4   0x228  xprintftiny.o [9]
+  .rodata              const     0x100'4f84         4    0x20  print.o [1]
+  .text                ro code   0x100'4fa4         4     0xc  as32x601_usart.o [3]
+  .text                ro code   0x100'4fb0         4    0x2c  heap0.o [11]
+  .text                ro code   0x100'4fdc         4    0x14  as32x601_usart.o [3]
+  .text                ro code   0x100'4ff0         4    0x50  myprintf.o [5]
+  .text                ro code   0x100'5040         4    0x60  DblToS32.o [10]
+  .text                ro code   0x100'50a0         4    0x3c  S32ToDbl.o [10]
+  .text                ro code   0x100'50dc         4    0x38  DblLogEq.o [10]
+  .text                ro code   0x100'5114         4   0x2bc  DblMul.o [10]
+  .text                ro code   0x100'53d0         4    0xb4  heap0.o [11]
+  .text                ro code   0x100'5484         4    0x38  xgetmemchunk.o [11]
+  .text                ro code   0x100'54bc         4    0x50  as32x601_canfd.o [3]
+  .text                ro code   0x100'550c         4   0x2b0  canfd.o [1]
+  .text                ro code   0x100'57bc         4    0xc4  canfd_xieyi.o [1]
+  .rodata              const     0x100'5880         4    0x1c  as32x601_canfd.o [3]
+  .text                ro code   0x100'589c         4   0x258  canfd.o [1]
+  .text                ro code   0x100'5af4         4    0xc4  canfd_xieyi.o [1]
+  .rodata              const     0x100'5bb8         4    0x1c  as32x601_canfd.o [3]
+  .jumptable           const     0x100'5bd4         4    0x5c  uart_xingjian.o [1]
+  .rodata              const     0x100'5c30         4     0xc  uart_xingjian.o [1]
+  .text                ro code   0x100'5c3c         4    0x78  strcpy_small.o [9]
+  .text                ro code   0x100'5cb4         4    0x54  strlen_small.o [9]
+  .rodata              const     0x100'5d08         4     0xc  uart_xingjian.o [1]
+  .rodata              const     0x100'5d14         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5d24         4     0xc  uart_xingjian.o [1]
+  .rodata              const     0x100'5d30         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5d40         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5d50         4     0xc  uart_xingjian.o [1]
+  .rodata              const     0x100'5d5c         4     0xc  uart_xingjian.o [1]
+  .rodata              const     0x100'5d68         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5d78         4     0xc  uart_xingjian.o [1]
+  .rodata              const     0x100'5d84         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5d94         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5da4         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5db4         4     0xc  uart_xingjian.o [1]
+  .rodata              const     0x100'5dc0         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5dd0         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5de0         4     0xc  uart_xingjian.o [1]
+  .rodata              const     0x100'5dec         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5dfc         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5e0c         4     0xc  uart_xingjian.o [1]
+  .rodata              const     0x100'5e18         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5e28         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5e38         4     0xc  uart_xingjian.o [1]
+  .jumptable           const     0x100'5e44         4    0x40  uart_xingjian.o [1]
+  .rodata              const     0x100'5e84         4    0x10  uart_xingjian.o [1]
+  .text                ro code   0x100'5e94         4    0x68  snprintf.o [11]
+  .rodata              const     0x100'5efc         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5f0c         4     0xc  uart_xingjian.o [1]
+  .rodata              const     0x100'5f18         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5f28         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5f38         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5f48         4     0xc  uart_xingjian.o [1]
+  .rodata              const     0x100'5f54         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5f64         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5f74         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5f84         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5f94         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5fa4         4     0xc  uart_xingjian.o [1]
+  .rodata              const     0x100'5fb0         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5fc0         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5fd0         4    0x10  uart_xingjian.o [1]
+  .rodata              const     0x100'5fe0         4    0x10  uart_xingjian.o [1]
+  .text                ro code   0x100'5ff0         4    0x3c  putchar.o [11]
+  .text                ro code   0x100'602c         4    0x5c  xprintftiny.o [9]
+  .text                ro code   0x100'6088         4   0x100  as32x601_gpio.o [3]
+  .text                ro code   0x100'6188         4    0x20  as32x601_gpio.o [3]
+  .text                ro code   0x100'61a8         4    0x2c  as32x601_canfd.o [3]
+  .rodata              const     0x100'61d4         4    0x14  canfd.o [1]
+  .text                ro code   0x100'61e8         4    0x5c  as32x601_canfd.o [3]
+  .rodata              const     0x100'6244         4    0x18  canfd.o [1]
+  .text                ro code   0x100'625c         4    0x48  as32x601_canfd.o [3]
+  .text                ro code   0x100'62a4         4    0x3c  as32x601_canfd.o [3]
+  .text                ro code   0x100'62e0         4    0x3c  as32x601_canfd.o [3]
+  .text                ro code   0x100'631c         4    0x28  as32x601_canfd.o [3]
+  .text                ro code   0x100'6344         4     0xc  as32x601_canfd.o [3]
+  .text                ro code   0x100'6350         4    0x10  as32x601_plic.o [3]
+  .text                ro code   0x100'6360         4   0x104  as32x601_plic.o [3]
+  .text                ro code   0x100'6464         4     0x8  as32x601_canfd.o [3]
+  .text                ro code   0x100'646c         4    0x38  xsnprout.o [11]
+  .text                ro code   0x100'64a4         4    0x24  __dbg_xxwrite.o [7]
+  .text                ro code   0x100'64c8         4    0x30  __dbg_xxdwrite.o [7]
+  .text                ro code   0x100'64f8         4     0x4  __dbg_break.o [7]
+  .text                ro code   0x100'64fc         4   0x35c  canfd_xieyi.o [1]
+  .jumptable           const     0x100'6858         4    0x30  canfd_xieyi.o [1]
+  .text                ro code   0x100'6888         4   0x250  canfd_xieyi.o [1]
+  .text                ro code   0x100'6ad8         4    0xbc  canfd_xieyi.o [1]
+  .text                ro code   0x100'6b94         4   0x2a0  main.o [6]
+  .text                ro code   0x100'6e34         4   0x350  main.o [6]
+  .text                ro code   0x100'7184         4     0x8  delay.o [5]
+  .text                ro code   0x100'718c         4   0x238  gpio.o [1]
+  .text                ro code   0x100'73c4         4   0x188  iic.o [1]
+  .text                ro code   0x100'754c         4   0x148  iic.o [1]
+  .text                ro code   0x100'7694         4   0x1c8  print.o [1]
+  .text                ro code   0x100'785c         4   0x1dc  print.o [1]
+  .text                ro code   0x100'7a38         4   0x1d8  print.o [1]
+  .text                ro code   0x100'7c10         4   0x1c0  print.o [1]
+  .text                ro code   0x100'7dd0         4   0x1c4  print.o [1]
+  .text                ro code   0x100'7f94         4   0x10c  canfd.o [1]
+  .text                ro code   0x100'80a0         4    0x14  as32x601_adc.o [3]
+  .rodata              const     0x100'80b4         4    0x14  main.o [6]
+  .rodata              const     0x100'80c8         4    0x18  main.o [6]
+  .rodata              const     0x100'80e0         4    0x20  main.o [6]
+  .text                ro code   0x100'8100         4   0x2dc  gpio.o [1]
+  .text                ro code   0x100'83dc         4    0xa8  canfd.o [1]
+  .text                ro code   0x100'8484         4    0x9c  canfd.o [1]
+  .rodata              const     0x100'8520         4     0x8  main.o [6]
+  .rodata              const     0x100'8528         4     0xc  main.o [6]
+  .rodata              const     0x100'8534         4    0x20  main.o [6]
+  .rodata              const     0x100'8554         4    0x20  main.o [6]
+  .text                ro code   0x100'8574         4    0xe4  main.o [6]
+  .rodata              const     0x100'8658         4    0x1c  main.o [6]
+  .text                ro code   0x100'8674         4   0x118  uart_dianji.o [1]
+  .text                ro code   0x100'878c         4    0xc0  as32x601_smu.o [3]
+  .text                ro code   0x100'884c         4    0x6c  as32x601_flash.o [3]
+  .text                ro code   0x100'88b8         4    0x70  as32x601_flash.o [3]
+  .text                ro code   0x100'8928         4    0xec  as32x601_smu.o [3]
+  .text                ro code   0x100'8a14         4    0x2c  as32x601_flash.o [3]
+  .text                ro code   0x100'8a40         4   0x1c4  as32x601_smu.o [3]
+  .text                ro code   0x100'8c04         4    0xc4  gpio.o [1]
+  .text                ro code   0x100'8cc8         4    0x14  as32x601_i2c.o [3]
+  .text                ro code   0x100'8cdc         4    0x64  as32x601_i2c.o [3]
+  .text                ro code   0x100'8d40         4    0x10  as32x601_usart.o [3]
+  .text                ro code   0x100'8d50         4    0x30  as32x601_usart.o [3]
+  .text                ro code   0x100'8d80         4   0x108  as32x601_usart.o [3]
+  .text                ro code   0x100'8e88         4    0x24  as32x601_usart.o [3]
+  .text                ro code   0x100'8eac         4    0xf8  as32x601_usart.o [3]
+  .text                ro code   0x100'8fa4         4     0x8  as32x601_core.o [3]
+  .text                ro code   0x100'8fac         4     0x8  as32x601_usart.o [3]
+  .rodata              const     0x100'8fb4         4    0x1c  canfd.o [1]
+  .rodata              const     0x100'8fd0         4    0x18  canfd.o [1]
+  .rodata              const     0x100'8fe8         4    0x20  main.o [6]
+  .rodata              const     0x100'9008         4    0x1c  main.o [6]
+  .rodata              const     0x100'9024         4    0x1c  uart_dianji.o [1]
+  .text                ro code   0x100'9040         4    0x44  as32x601_smu.o [3]
+  .text                ro code   0x100'9084         4    0x2c  as32x601_smu.o [3]
+  .text                ro code   0x100'90b0         4    0x1c  as32x601_smu.o [3]
+  .text                ro code   0x100'90cc         4    0xb0  as32x601_smu.o [3]
+  .text                ro code   0x100'917c         4    0x1c  as32x601_smu.o [3]
+  .text                ro code   0x100'9198         4    0x40  as32x601_smu.o [3]
+  .text                ro code   0x100'91d8         4    0x40  as32x601_smu.o [3]
+  .text                ro code   0x100'9218         4    0x18  as32x601_flash.o [3]
+  .text                ro code   0x100'9230         4    0x6c  as32x601_smu.o [3]
+  .text                ro code   0x100'929c         4    0x6c  as32x601_smu.o [3]
+  .text                ro code   0x100'9308         4   0x14c  as32x601_usart.o [3]
+  .text.entry          ro code   0x100'9460        16   0x230  as32x601_trapentry.o [2]
+  .text                ro code   0x100'9690         4    0xe8  as32x601_plic.o [3]
+  .text                ro code   0x100'9778         4    0x64  as32x601_plic.o [3]
+  .jumptable           const     0x100'97dc         4    0x40  as32x601_plic.o [3]
+  .text                ro code   0x100'981c         4     0x4  as32x601_core.o [3]
+  .text                ro code   0x100'9820         4     0x4  as32x601_core.o [3]
+  .text                ro code   0x100'9824         4     0x4  as32x601_core.o [3]
+  .text                ro code   0x100'9828         4     0x4  as32x601_core.o [3]
+  .text                ro code   0x100'982c         4     0x4  as32x601_core.o [3]
+  .text                ro code   0x100'9830         4     0x4  as32x601_core.o [3]
+  .text                ro code   0x100'9834         4     0x4  as32x601_core.o [3]
+  .text                ro code   0x100'9838         4     0x4  as32x601_core.o [3]
+  .text                ro code   0x100'983c         4     0x4  as32x601_core.o [3]
+  .text                ro code   0x100'9840         4     0x4  as32x601_core.o [3]
+  .text                ro code   0x100'9844         4     0x4  as32x601_core.o [3]
+  .text                ro code   0x100'9848         4     0x4  as32x601_core.o [3]
+  .text                ro code   0x100'984c         4    0x3c  as32x601_plic.o [3]
+  RW_DATA_INIT                   0x100'9888             0x12c  <Block>
+    Initializer bytes  const     0x100'9888         4   0x12c  <for RW_DATA-1>
+  .text                ro code   0x100'99b4         4    0x94  gpio.o [1]
+  .text                ro code   0x100'9a48         4    0x34  as32x601_gpio.o [3]
+  .text                ro code   0x100'9a7c         4    0x20  as32x601_gpio.o [3]
+  .text                ro code   0x100'9a9c         4    0xa0  __dbg_abort.o [7]
+  .text                ro code   0x100'9b3c         4    0x24  __dbg_xxexit.o [7]
+  .text                ro code   0x100'9b60         4    0x58  print.o [1]
+  .text                ro code   0x100'9bb8         4     0xc  as32x601_usart.o [3]
+  .text                ro code   0x100'9bc4         4    0x58  print.o [1]
+  .text                ro code   0x100'9c1c         4    0x58  print.o [1]
+  .text                ro code   0x100'9c74         4    0x58  print.o [1]
+  .cstartup            ro code   0x100'9ccc         4    0x48  cstartup.o [10]
+  .mtext               ro code   0x100'9d80       128    0x20  default_interrupt_handler.o [8]
+  .text                ro code   0x100'9da0         4     0x8  low_level_init.o [9]
+  .text                ro code   0x100'9da8         4    0x3c  data_init.o [9]
+  .text                ro code   0x100'9de4         4     0x4  exit.o [9]
+  .text                ro code   0x100'9de8         4    0x20  cexit.o [9]
+  .text                ro code   0x100'9e08         4    0x3c  gpio.o [1]
+  .text                ro code   0x100'9e44         4    0x38  canfd.o [1]
+  .text                ro code   0x100'9e7c         4    0x14  as32x601_canfd.o [3]
+  .text                ro code   0x100'9e90         4    0x38  canfd.o [1]
+  .text                ro code   0x100'9ec8         4    0x38  canfd.o [1]
+  .text                ro code   0x100'9f00         4    0x38  canfd.o [1]
+  .iar.init_table      const     0x100'9f38         4     0xc  - Linker created -
+  .text                ro code   0x100'9f44         4    0x20  zero_init.o [9]
+  .rodata              const     0x100'9f64         4    0x14  myprintf.o [5]
+                               - 0x100'9f78            0x9eec
+
+"RAM32", part 1 of 2:                                   0x4ac
+  RW_DATA_ALL                   0x2000'0000             0x4ac  <Block>
+    RW_DATA                     0x2000'0000             0x12c  <Block>
+      RW_DATA-1                 0x2000'0000         4   0x12c  <Init block>
+        .data          inited   0x2000'0000         4    0x10  as32x601_canfd.o [3]
+        .data          inited   0x2000'0010         4    0x10  as32x601_canfd.o [3]
+        .data          inited   0x2000'0020         4     0x4  as32x601_canfd.o [3]
+        .data          inited   0x2000'0024         4   0x104  as32x601_plic.o [3]
+        .data          inited   0x2000'0128         4     0x4  uart_xingjian.o [1]
+    RW_BSS                      0x2000'012c             0x380  <Block>
+      .bss             zero     0x2000'012c         4    0x28  adc.o [1]
+      .bss             zero     0x2000'0154         4    0x28  as32x601_smu.o [3]
+      .bss             zero     0x2000'017c         4    0x60  canfd_xieyi.o [1]
+      .bss             zero     0x2000'01dc         4    0x34  canfd_xieyi.o [1]
+      .bss             zero     0x2000'0210         4    0x48  canfd_xieyi.o [1]
+      .bss             zero     0x2000'0258         4    0x80  canfd_xieyi.o [1]
+      .bss             zero     0x2000'02d8         4    0x40  main.o [6]
+      .bss             zero     0x2000'0318         4     0x4  main.o [6]
+      .bss             zero     0x2000'031c         4    0x40  main.o [6]
+      .bss             zero     0x2000'035c         4     0x4  main.o [6]
+      .bss             zero     0x2000'0360         4    0x40  main.o [6]
+      .bss             zero     0x2000'03a0         4     0x4  main.o [6]
+      .bss             zero     0x2000'03a4         4    0x40  main.o [6]
+      .bss             zero     0x2000'03e4         4     0x4  main.o [6]
+      .bss             zero     0x2000'03e8         4     0x4  main.o [6]
+      .bss             zero     0x2000'03ec         4     0x4  main.o [6]
+      .bss             zero     0x2000'03f0         4     0x4  main.o [6]
+      .bss             zero     0x2000'03f4         4     0x4  main.o [6]
+      .bss             zero     0x2000'03f8         4    0x40  main.o [6]
+      .bss             zero     0x2000'0438         4    0x40  main.o [6]
+      .bss             zero     0x2000'0478         4     0x8  heap0.o [11]
+      .bss             zero     0x2000'0480         4     0x4  xgetmemchunk.o [11]
+      .bss             zero     0x2000'0484         2     0x2  gpio.o [1]
+      .bss             zero     0x2000'0486               0x1  as32x601_canfd.o [3]
+      .bss             zero     0x2000'0487               0x1  as32x601_canfd.o [3]
+      .bss             zero     0x2000'0488               0x1  as32x601_canfd.o [3]
+      .bss             zero     0x2000'0489               0x1  as32x601_canfd.o [3]
+      .bss             zero     0x2000'048a               0x1  as32x601_canfd.o [3]
+      .bss             zero     0x2000'048b               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'048c               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'048d               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'048e               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'048f               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'0490               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'0491               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'0492               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'0493               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'0494               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'0495               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'0496               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'0497               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'0498               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'0499               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'049a               0x1  canfd_xieyi.o [1]
+      .bss             zero     0x2000'049b               0x1  delay.o [5]
+      .bss             zero     0x2000'049c               0x1  gpio.o [1]
+      .bss             zero     0x2000'049d               0x1  gpio.o [1]
+      .bss             zero     0x2000'049e               0x1  gpio.o [1]
+      .bss             zero     0x2000'049f               0x1  gpio.o [1]
+      .bss             zero     0x2000'04a0               0x1  gpio.o [1]
+      .bss             zero     0x2000'04a1               0x1  gpio.o [1]
+      .bss             zero     0x2000'04a2               0x1  gpio.o [1]
+      .bss             zero     0x2000'04a3               0x1  main.o [6]
+      .bss             zero     0x2000'04a4               0x1  main.o [6]
+      .bss             zero     0x2000'04a5               0x1  main.o [6]
+      .bss             zero     0x2000'04a6               0x1  main.o [6]
+      .bss             zero     0x2000'04a7               0x1  main.o [6]
+      .bss             zero     0x2000'04a8               0x1  main.o [6]
+      .bss             zero     0x2000'04a9               0x1  main.o [6]
+                              - 0x2000'04ac             0x4ac
+
+"RAM32", part 2 of 2:                                  0x2000
+  HEAP                          0x2000'04b0        16  0x1000  <Block>
+    HEAP               uninit   0x2000'04b0            0x1000  <Block tail>
+  CSTACK                        0x2000'14b0        16  0x1000  <Block>
+    CSTACK             uninit   0x2000'14b0            0x1000  <Block tail>
+                              - 0x2000'24b0            0x2000
+
+Unused ranges:
+
+         From           To       Size
+         ----           --       ----
+   0x100'9f78   0x13f'ffff  0x3f'6088
+  0x2000'04ac  0x2000'04af        0x4
+  0x2000'24b0  0x2000'7fff     0x5b50
+
+
+*******************************************************************************
+*** INIT TABLE
+***
+
+          Address      Size
+          -------      ----
+Zero (__iar_zero_init2)
+    1 destination range, total size 0x37e:
+          0x2000'012c  0x37e
+
+
+
+*******************************************************************************
+*** MODULE SUMMARY
+***
+
+    Module                       ro code  ro data  rw data
+    ------                       -------  -------  -------
+command line/config:
+    ------------------------------------------------------
+    Total:
+
+C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Bsp_169489739208138388.dir: [1]
+    adc.o                          1'492                40
+    canfd.o                        2'104       96
+    canfd_xieyi.o                  6'896    1'060      364
+    gpio.o                         3'284      344        9
+    iic.o                            720
+    print.o                        2'756       32
+    uart_dianji.o                    556      132
+    uart_xingjian.o                1'696      996        4
+    ------------------------------------------------------
+    Total:                        19'504    2'660      417
+
+C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Core_2780535767142203951.dir: [2]
+    as32x601_trapentry.o             560
+    ------------------------------------------------------
+    Total:                           560
+
+C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir: [3]
+    as32x601_adc.o                 1'528
+    as32x601_canfd.o               2'800      208       41
+    as32x601_core.o                   56
+    as32x601_flash.o                 288
+    as32x601_gpio.o                1'136
+    as32x601_i2c.o                   120
+    as32x601_plic.o                  668      324      260
+    as32x601_smu.o                 1'568                40
+    as32x601_usart.o                 996
+    ------------------------------------------------------
+    Total:                         9'160      532      341
+
+C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Startup_17868067532763321386.dir: [4]
+    as32x601_startup.o               140
+    ------------------------------------------------------
+    Total:                           140
+
+C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\System_896816979012834669.dir: [5]
+    delay.o                          276                 1
+    myprintf.o                       936       20
+    ------------------------------------------------------
+    Total:                         1'212       20        1
+
+C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\User_4889033380472473340.dir: [6]
+    main.o                         1'748      248      423
+    ------------------------------------------------------
+    Total:                         1'748      248      423
+
+dbg-rv32i.a: [7]
+    __dbg_abort.o                    160
+    __dbg_break.o                      4
+    __dbg_xxdwrite.o                  48
+    __dbg_xxexit.o                    36
+    __dbg_xxwrite.o                   36
+    ------------------------------------------------------
+    Total:                           284
+
+di-rv32i.a: [8]
+    default_interrupt_handler.o       32
+    ------------------------------------------------------
+    Total:                            32
+
+dl-rv32im.a: [9]
+    cexit.o                           32
+    data_init.o                       60
+    exit.o                             4
+    heaptramp0.o                       4
+    low_level_init.o                   8
+    memcpy_medium.o                  236
+    memset_medium.o                  120
+    strcpy_small.o                   120
+    strlen_small.o                    84
+    xprintftiny.o                    644
+    zero_init.o                       32
+    ------------------------------------------------------
+    Total:                         1'344
+
+dlmath-rv32imf.a: [10]
+    DblAddSub.o                    1'236
+    DblLogEq.o                        56
+    DblMul.o                         700
+    DblToS32.o                        96
+    S32ToDbl.o                        60
+    cstartup.o                        72
+    save_restore.o                    92
+    ------------------------------------------------------
+    Total:                         2'312
+
+dln-rv32im.a: [11]
+    heap0.o                          540                 8
+    printf.o                          56
+    putchar.o                         60
+    snprintf.o                       104
+    xgetmemchunk.o                    56                 4
+    xprout.o                          64
+    xsnprout.o                        56
+    ------------------------------------------------------
+    Total:                           936                12
+
+    Gaps                             120
+    Linker created                             12    8'192
+----------------------------------------------------------
+    Grand Total:                  37'352    3'472    9'386
+
+
+*******************************************************************************
+*** ENTRY LIST
+***
+
+Entry                       Address   Size  Type      Object
+-----                       -------   ----  ----      ------
+.iar.init_table$$Base    0x100'9f38          --   Gb  - Linker created -
+.iar.init_table$$Limit   0x100'9f44          --   Gb  - Linker created -
+ADCValue                0x2000'012c   0x28  Data  Gb  adc.o [1]
+ADC_ConfigChannel        0x100'0d24  0x19c  Code  Gb  as32x601_adc.o [3]
+ADC_Init                 0x100'0978  0x3b4  Code  Gb  as32x601_adc.o [3]
+ADC_InitDelayus          0x100'0f80   0x24  Code  Lc  as32x601_adc.o [3]
+ADC_SoftRegularConvert   0x100'80a0   0x14  Code  Gb  as32x601_adc.o [3]
+ADC_StructInit           0x100'0900   0x78  Code  Gb  as32x601_adc.o [3]
+A_CAN_CUTTENT_CMD1      0x2000'0491    0x1  Data  Gb  canfd_xieyi.o [1]
+A_CAN_CW_count1         0x2000'0490    0x1  Data  Gb  canfd_xieyi.o [1]
+A_CAN_YC_count1         0x2000'048e    0x1  Data  Gb  canfd_xieyi.o [1]
+A_CAN_ZQ_count1         0x2000'048f    0x1  Data  Gb  canfd_xieyi.o [1]
+A_CAN_reset_num1        0x2000'0492    0x1  Data  Lc  canfd_xieyi.o [1]
+Aldata                  0x2000'0478    0x8  Data  Lc  heap0.o [11]
+B_CAN_CUTTENT_CMD0      0x2000'0496    0x1  Data  Gb  canfd_xieyi.o [1]
+B_CAN_CW_count0         0x2000'0495    0x1  Data  Gb  canfd_xieyi.o [1]
+B_CAN_YC_count0         0x2000'0493    0x1  Data  Gb  canfd_xieyi.o [1]
+B_CAN_ZQ_count0         0x2000'0494    0x1  Data  Gb  canfd_xieyi.o [1]
+Breakpoint_Handler       0x100'9828    0x4  Code  Gb  as32x601_core.o [3]
+CANFD0_Frame_Init        0x100'83dc   0xbc  Code  Gb  canfd.o [1]
+CANFD0_Frame_rev         0x100'383c   0xcc  Code  Gb  canfd_xieyi.o [1]
+CANFD0_IRQ_Handler       0x100'9e90   0x44  Code  Wk  canfd.o [1]
+CANFD1_Frame_Init        0x100'8484   0xac  Code  Gb  canfd.o [1]
+CANFD1_Frame_rev         0x100'6ad8   0xcc  Code  Gb  canfd_xieyi.o [1]
+CANFD1_IRQ_Handler       0x100'9e44   0x44  Code  Wk  canfd.o [1]
+CANFD2_IRQ_Handler       0x100'9f00   0x44  Code  Wk  canfd.o [1]
+CANFD3_IRQ_Handler       0x100'9ec8   0x44  Code  Wk  canfd.o [1]
+CANFD_AutoBusOffRecoConfig
+                         0x100'62a4   0x3c  Code  Gb  as32x601_canfd.o [3]
+CANFD_AutoRetransConfig
+                         0x100'62e0   0x3c  Code  Gb  as32x601_canfd.o [3]
+CANFD_ClearITPendingBit
+                         0x100'6464    0x8  Code  Gb  as32x601_canfd.o [3]
+CANFD_Enable             0x100'6344    0xc  Code  Gb  as32x601_canfd.o [3]
+CANFD_FilterInit         0x100'625c   0x48  Code  Gb  as32x601_canfd.o [3]
+CANFD_FrameInit          0x100'453c  0x1b4  Code  Gb  as32x601_canfd.o [3]
+CANFD_GetITStatus        0x100'9e7c   0x14  Code  Gb  as32x601_canfd.o [3]
+CANFD_GetReceiveData     0x100'0fd0  0x520  Code  Gb  as32x601_canfd.o [3]
+CANFD_GetSendCmpStatus   0x100'473c   0x14  Code  Gb  as32x601_canfd.o [3]
+CANFD_GetStatus          0x100'54bc   0x50  Code  Gb  as32x601_canfd.o [3]
+CANFD_HandleTimeout      0x100'4770   0xac  Code  Gb  as32x601_canfd.o [3]
+CANFD_ITConfig           0x100'631c   0x28  Code  Gb  as32x601_canfd.o [3]
+CANFD_Init               0x100'61e8   0x5c  Code  Gb  as32x601_canfd.o [3]
+CANFD_NormalStatus       0x100'4704   0x34  Code  Gb  as32x601_canfd.o [3]
+CANFD_RecoverFromBusOff
+                         0x100'8574  0x108  Code  Gb  main.o [6]
+CANFD_SetSendChannel     0x100'4734    0x8  Code  Gb  as32x601_canfd.o [3]
+CANFD_StructInit         0x100'61a8   0x2c  Code  Gb  as32x601_canfd.o [3]
+CANFD_Transmit           0x100'38f8  0x1dc  Code  Gb  as32x601_canfd.o [3]
+CSTACK$$Base            0x2000'14b0          --   Gb  - Linker created -
+CSTACK$$Limit           0x2000'24b0          --   Gb  - Linker created -
+Can_Dlc2DataLen         0x2000'0010   0x10  Data  Lc  as32x601_canfd.o [3]
+Can_Dlc2Reglen          0x2000'0000   0x10  Data  Lc  as32x601_canfd.o [3]
+Canfd0rx_bytes          0x2000'03e8    0x4  Data  Gb  main.o [6]
+Canfd0rx_flags          0x2000'04a6    0x1  Data  Gb  main.o [6]
+Canfd1rx_bytes          0x2000'03ec    0x4  Data  Gb  main.o [6]
+Canfd1rx_flags          0x2000'04a7    0x1  Data  Gb  main.o [6]
+Canfd2rx_flags          0x2000'04a8    0x1  Data  Gb  main.o [6]
+Canfd3rx_flags          0x2000'04a9    0x1  Data  Gb  main.o [6]
+ClearCache               0x100'8fa4    0x8  Code  Gb  as32x601_core.o [3]
+Default_Int_Handler      0x100'968c         Code  Gb  as32x601_trapentry.o [2]
+ECall_Handler            0x100'983c    0x4  Code  Gb  as32x601_core.o [3]
+FLASH_GetFlagStatus      0x100'9218   0x18  Code  Gb  as32x601_flash.o [3]
+FLASH_LockCtrl           0x100'8a14   0x2c  Code  Gb  as32x601_flash.o [3]
+FLASH_SetCLKFreq         0x100'88b8   0x78  Code  Gb  as32x601_flash.o [3]
+FLASH_UnlockCtrl         0x100'884c   0x78  Code  Gb  as32x601_flash.o [3]
+GPIOB_IRQ_Handler        0x100'9e08   0x48  Code  Gb  gpio.o [1]
+GPIOD_IRQ_Handler        0x100'99b4   0xb8  Code  Gb  gpio.o [1]
+GPIO_ClearITPendingBit   0x100'9a7c   0x20  Code  Gb  as32x601_gpio.o [3]
+GPIO_GetITStatus         0x100'9a48   0x34  Code  Gb  as32x601_gpio.o [3]
+GPIO_Init                0x100'0660  0x280  Code  Gb  as32x601_gpio.o [3]
+GPIO_PinAFConfig         0x100'6088  0x100  Code  Gb  as32x601_gpio.o [3]
+GPIO_StructInit          0x100'6188   0x20  Code  Gb  as32x601_gpio.o [3]
+GPIO_WriteBits           0x100'3acc   0x7c  Code  Gb  as32x601_gpio.o [3]
+HEAP$$Base              0x2000'04b0          --   Gb  - Linker created -
+HEAP$$Limit             0x2000'14b0          --   Gb  - Linker created -
+I2C_Init                 0x100'8cdc   0x64  Code  Gb  as32x601_i2c.o [3]
+I2C_StructInit           0x100'8cc8   0x14  Code  Gb  as32x601_i2c.o [3]
+IllegalInst_Handler      0x100'9824    0x4  Code  Gb  as32x601_core.o [3]
+InstAccessFault_Handler
+                         0x100'9820    0x4  Code  Gb  as32x601_core.o [3]
+InstAddrMisalign_Handler
+                         0x100'981c    0x4  Code  Gb  as32x601_core.o [3]
+InstPageFault_Handler    0x100'9840    0x4  Code  Gb  as32x601_core.o [3]
+LoadAccessFault_Handler
+                         0x100'9830    0x4  Code  Gb  as32x601_core.o [3]
+LoadAddrMisalign_Handler
+                         0x100'982c    0x4  Code  Gb  as32x601_core.o [3]
+LoadPageFault_Handler    0x100'9844    0x4  Code  Gb  as32x601_core.o [3]
+PLIC_IRQHandlers        0x2000'0024  0x104  Data  Lc  as32x601_plic.o [3]
+PLIC_Init                0x100'6360  0x104  Code  Gb  as32x601_plic.o [3]
+PLIC_MEXITIRQHandler     0x100'984c   0x3c  Code  Lc  as32x601_plic.o [3]
+PLIC_StructInit          0x100'6350   0x10  Code  Gb  as32x601_plic.o [3]
+PLIC_SwitchMEXTI         0x100'9778   0x68  Code  Lc  as32x601_plic.o [3]
+PLIC_TrapHandler         0x100'9690  0x130  Code  Gb  as32x601_plic.o [3]
+PrintAddr                0x100'42e4   0x48  Code  Lc  myprintf.o [5]
+PrintDeci                0x100'4240   0x58  Code  Lc  myprintf.o [5]
+PrintFloat               0x100'4320   0xf0  Code  Lc  myprintf.o [5]
+PrintHex                 0x100'42b8   0x34  Code  Lc  myprintf.o [5]
+PrintNum                 0x100'4ff0   0x58  Code  Lc  myprintf.o [5]
+PrintOct                 0x100'428c   0x34  Code  Lc  myprintf.o [5]
+PrintStr                 0x100'43e4   0x50  Code  Lc  myprintf.o [5]
+Printf                   0x100'3488  0x154  Code  Gb  myprintf.o [5]
+Putchar                  0x100'420c   0x38  Code  Wk  myprintf.o [5]
+RW_BSS$$Base            0x2000'012c          --   Gb  - Linker created -
+RW_BSS$$Limit           0x2000'04ac          --   Gb  - Linker created -
+RW_DATA$$Base           0x2000'0000          --   Gb  - Linker created -
+RW_DATA$$Limit          0x2000'012c          --   Gb  - Linker created -
+RW_DATA_ALL$$Base       0x2000'0000          --   Gb  - Linker created -
+RW_DATA_ALL$$Limit      0x2000'04ac          --   Gb  - Linker created -
+RW_DATA_INIT$$Base       0x100'9888          --   Gb  - Linker created -
+RW_DATA_INIT$$Limit      0x100'99b4          --   Gb  - Linker created -
+Receive_data0           0x2000'0438   0x40  Data  Gb  main.o [6]
+Receive_data1           0x2000'03f8   0x40  Data  Gb  main.o [6]
+Region$$Table$$Base      0x100'9f38          --   Gb  - Linker created -
+Region$$Table$$Limit     0x100'9f44          --   Gb  - Linker created -
+ResetMstatusMie          0x100'9684         Code  Gb  as32x601_trapentry.o [2]
+SMU_ClockInit            0x100'8928   0xf8  Code  Gb  as32x601_smu.o [3]
+SMU_ClocksStruct        0x2000'0154   0x28  Data  Gb  as32x601_smu.o [3]
+SMU_FIRCRc16mFreConfig   0x100'9084   0x2c  Code  Gb  as32x601_smu.o [3]
+SMU_FIRCRc16mPdCmd       0x100'9040   0x44  Code  Gb  as32x601_smu.o [3]
+SMU_GetClocksFreq        0x100'8a40  0x1cc  Code  Gb  as32x601_smu.o [3]
+SMU_GetFIRCReadyStatus   0x100'90b0   0x1c  Code  Gb  as32x601_smu.o [3]
+SMU_GetFlagStatus        0x100'917c   0x1c  Code  Gb  as32x601_smu.o [3]
+SMU_GetPLLQCLK           0x100'9230   0x6c  Code  Lc  as32x601_smu.o [3]
+SMU_GetPLLRCLK           0x100'929c   0x6c  Code  Lc  as32x601_smu.o [3]
+SMU_PLLCmd               0x100'9198   0x40  Code  Gb  as32x601_smu.o [3]
+SMU_PLLConfig            0x100'90cc   0xb0  Code  Gb  as32x601_smu.o [3]
+SMU_PLLInit              0x100'878c   0xe4  Code  Gb  as32x601_smu.o [3]
+SMU_PLLRstnCmd           0x100'91d8   0x40  Code  Gb  as32x601_smu.o [3]
+SetMstatusMie            0x100'967c         Code  Gb  as32x601_trapentry.o [2]
+StoreAMOAccessFault_Handler
+                         0x100'9838    0x4  Code  Gb  as32x601_core.o [3]
+StoreAMOAddrMisalign_Handler
+                         0x100'9834    0x4  Code  Gb  as32x601_core.o [3]
+StoreAMOPageFalut_Handler
+                         0x100'9848    0x4  Code  Gb  as32x601_core.o [3]
+Systemclock_Init         0x100'6e34  0x36c  Code  Gb  main.o [6]
+TrapEntry                0x100'9460         Code  Gb  as32x601_trapentry.o [2]
+USART0_IRQ_Handler       0x100'9b60   0x70  Code  Wk  print.o [1]
+USART1_IRQ_Handler       0x100'9c74   0x70  Code  Wk  print.o [1]
+USART3_IRQ_Handler       0x100'9c1c   0x70  Code  Wk  print.o [1]
+USART5_IRQ_Handler       0x100'9bc4   0x70  Code  Wk  print.o [1]
+USART_AdvFeatureConfig   0x100'9308  0x14c  Code  Gb  as32x601_usart.o [3]
+USART_ClearITPendingBit
+                         0x100'8fac    0x8  Code  Gb  as32x601_usart.o [3]
+USART_Cmd                0x100'8e88   0x24  Code  Gb  as32x601_usart.o [3]
+USART_DeInit             0x100'8d40   0x10  Code  Gb  as32x601_usart.o [3]
+USART_GetFlagStatus      0x100'4fdc   0x14  Code  Gb  as32x601_usart.o [3]
+USART_ITConfig           0x100'8eac   0xf8  Code  Gb  as32x601_usart.o [3]
+USART_Init               0x100'8d80  0x110  Code  Gb  as32x601_usart.o [3]
+USART_ReceiveData        0x100'9bb8    0xc  Code  Gb  as32x601_usart.o [3]
+USART_SendData           0x100'4fa4    0xc  Code  Gb  as32x601_usart.o [3]
+USART_StructInit         0x100'8d50   0x30  Code  Gb  as32x601_usart.o [3]
+User_ADC_All_Init        0x100'008c  0x64c  Code  Gb  adc.o [1]
+User_APP0_I2C2_Init      0x100'73c4  0x1a8  Code  Gb  iic.o [1]
+User_APP1_I2C3_Init      0x100'754c  0x168  Code  Gb  iic.o [1]
+User_CANFD0_Init         0x100'550c  0x304  Code  Gb  canfd.o [1]
+User_CANFD1_Init         0x100'589c  0x2a4  Code  Gb  canfd.o [1]
+User_GPIO_Init           0x100'8100  0x304  Code  Gb  gpio.o [1]
+User_all_enable          0x100'718c  0x278  Code  Gb  gpio.o [1]
+User_app1_uart5_Init     0x100'785c  0x214  Code  Gb  print.o [1]
+User_app2_uart3_Init     0x100'7a38  0x208  Code  Gb  print.o [1]
+User_app3_uart1_Init     0x100'7c10  0x1ec  Code  Gb  print.o [1]
+User_app4_uart0_Init     0x100'7dd0  0x1f0  Code  Gb  print.o [1]
+User_appTS_uart6_Init    0x100'7694  0x1f4  Code  Gb  print.o [1]
+User_canfd_enable        0x100'7f94  0x11c  Code  Gb  canfd.o [1]
+_PrintfTiny              0x100'4d5c  0x238  Code  Gb  xprintftiny.o [9]
+_Prout                   0x100'4d1c   0x44  Code  Gb  xprout.o [11]
+_SNProut                 0x100'646c   0x38  Code  Gb  xsnprout.o [11]
+__DebugBreak             0x100'64f8    0x4  Code  Gb  __dbg_break.o [7]
+__basic_free             0x100'4fb0   0x40  Code  Gb  heap0.o [11]
+__basic_free_intern      0x100'53d0   0xb8  Code  Lc  heap0.o [11]
+__basic_malloc           0x100'36a8   0x44  Code  Gb  heap0.o [11]
+__basic_malloc_intern    0x100'4430  0x118  Code  Lc  heap0.o [11]
+__data_GetMemChunk       0x100'5484   0x3c  Code  Gb  xgetmemchunk.o [11]
+__data_GetMemChunk::start
+                        0x2000'0480    0x4  Data  Lc  xgetmemchunk.o [11]
+__dwrite                 0x100'64c8   0x34  Code  Gb  __dbg_xxdwrite.o [7]
+__exit                   0x100'9b3c   0x28  Code  Gb  __dbg_xxexit.o [7]
+__iar_cstart_init_gp     0x100'9ccc         Code  Gb  cstartup.o [10]
+__iar_d2iz               0x100'5040         Code  Gb  DblToS32.o [10]
+__iar_dadd               0x100'179c         Code  Gb  DblAddSub.o [10]
+__iar_data_init2         0x100'9da8   0x3c  Code  Gb  data_init.o [9]
+__iar_dcmpeq             0x100'50dc         Code  Gb  DblLogEq.o [10]
+__iar_default_minterrupt_handler
+                         0x100'9d80   0x24  Code  Gb  default_interrupt_handler.o [8]
+__iar_dmul               0x100'5114         Code  Gb  DblMul.o [10]
+__iar_drsub              0x100'1788         Code  Gb  DblAddSub.o [10]
+__iar_dsub               0x100'15a4         Code  Gb  DblAddSub.o [10]
+__iar_i2d                0x100'50a0         Code  Gb  S32ToDbl.o [10]
+__iar_medium_memcpy      0x100'3718         Code  Gb  memcpy_medium.o [9]
+__iar_medium_memcpy4     0x100'3780         Code  Gb  memcpy_medium.o [9]
+__iar_medium_memcpy8     0x100'3780         Code  Gb  memcpy_medium.o [9]
+__iar_medium_memset      0x100'14fc         Code  Gb  memset_medium.o [9]
+__iar_medium_memset4     0x100'1504         Code  Gb  memset_medium.o [9]
+__iar_medium_memset4_word
+                         0x100'1518         Code  Gb  memset_medium.o [9]
+__iar_medium_memset8     0x100'1504         Code  Gb  memset_medium.o [9]
+__iar_medium_memset8_word
+                         0x100'1518         Code  Gb  memset_medium.o [9]
+__iar_small_strcpy       0x100'5c50         Code  Gb  strcpy_small.o [9]
+__iar_small_strcpy4      0x100'5c58         Code  Gb  strcpy_small.o [9]
+__iar_small_strlen       0x100'5cc0         Code  Gb  strlen_small.o [9]
+__iar_static_base$$GPREL
+                        0x2000'0258          --   Gb  - Linker created -
+__iar_zero_init2         0x100'9f44   0x20  Code  Gb  zero_init.o [9]
+__low_level_init         0x100'9da0    0x8  Code  Gb  low_level_init.o [9]
+__riscv_restore_0        0x100'3a84         Code  Gb  save_restore.o [10]
+__riscv_restore_1        0x100'3a84         Code  Gb  save_restore.o [10]
+__riscv_restore_2        0x100'3a84         Code  Gb  save_restore.o [10]
+__riscv_restore_3        0x100'3a84         Code  Gb  save_restore.o [10]
+__riscv_restore_4        0x100'3a70         Code  Gb  save_restore.o [10]
+__riscv_restore_5        0x100'3a70         Code  Gb  save_restore.o [10]
+__riscv_restore_6        0x100'3a70         Code  Gb  save_restore.o [10]
+__riscv_restore_7        0x100'3a70         Code  Gb  save_restore.o [10]
+__riscv_save_4           0x100'380c         Code  Gb  save_restore.o [10]
+__riscv_save_5           0x100'380c         Code  Gb  save_restore.o [10]
+__riscv_save_6           0x100'380c         Code  Gb  save_restore.o [10]
+__riscv_save_7           0x100'380c         Code  Gb  save_restore.o [10]
+__write                  0x100'64a4   0x28  Code  Gb  __dbg_xxwrite.o [7]
+_exit                    0x100'9de8         Code  Gb  cexit.o [9]
+_start                   0x100'0000         Code  Gb  as32x601_startup.o [4]
+abort                    0x100'9a9c   0xa8  Code  Gb  __dbg_abort.o [7]
+at_send_0param           0x100'47e4  0x2fc  Code  Gb  uart_xingjian.o [1]
+at_send_1param           0x100'4a78  0x27c  Code  Gb  uart_xingjian.o [1]
+at_send_2param           0x100'4ca8   0x84  Code  Gb  uart_xingjian.o [1]
+at_send_cmd              0x100'3c70   0xa4  Code  Gb  uart_xingjian.o [1]
+can_xieyi_test           0x100'64fc  0x484  Code  Gb  canfd_xieyi.o [1]
+can_xieyi_test0          0x100'1a78  0x498  Code  Gb  canfd_xieyi.o [1]
+canfd_M_sel             0x2000'04a5    0x1  Data  Gb  main.o [6]
+canfd_build_dianji_pack_T
+                         0x100'33ec   0xc0  Code  Gb  canfd_xieyi.o [1]
+canfd_build_wire_pack    0x100'25f0  0x258  Code  Gb  canfd_xieyi.o [1]
+canfd_build_yaoce_pack   0x100'210c  0x3dc  Code  Gb  canfd_xieyi.o [1]
+canfd_sel               0x2000'04a4    0x1  Data  Gb  main.o [6]
+canfd_send_all_data      0x100'6888  0x2a0  Code  Gb  canfd_xieyi.o [1]
+canfd_send_all_data0     0x100'239c  0x2a4  Code  Gb  canfd_xieyi.o [1]
+canfd_yc_all            0x2000'017c   0x60  Data  Gb  canfd_xieyi.o [1]
+currentXingjianUart     0x2000'0128    0x4  Data  Gb  uart_xingjian.o [1]
+current_count_id0       0x2000'048c    0x1  Data  Lc  canfd_xieyi.o [1]
+current_count_id1       0x2000'048d    0x1  Data  Lc  canfd_xieyi.o [1]
+data1                   0x2000'02d8   0x40  Data  Gb  main.o [6]
+data2                   0x2000'031c   0x40  Data  Gb  main.o [6]
+data3                   0x2000'0360   0x40  Data  Gb  main.o [6]
+data4                   0x2000'03a4   0x40  Data  Gb  main.o [6]
+delay_init               0x100'7184    0xc  Code  Gb  delay.o [5]
+delay_ms                 0x100'08e0   0x24  Code  Gb  delay.o [5]
+delay_us                 0x100'0ec0   0xcc  Code  Gb  delay.o [5]
+dj_uart_cmd_analyze      0x100'3200  0x13c  Code  Gb  uart_dianji.o [1]
+dj_uart_cmd_rqu          0x100'3314   0xfc  Code  Gb  canfd_xieyi.o [1]
+dj_uart_cmd_yc_return    0x100'8674  0x138  Code  Gb  uart_dianji.o [1]
+err_status0             0x2000'03f0    0x4  Data  Gb  main.o [6]
+err_status1             0x2000'03f4    0x4  Data  Gb  main.o [6]
+exit                     0x100'9de4    0x8  Code  Gb  exit.o [9]
+fac_us                  0x2000'049b    0x1  Data  Lc  delay.o [5]
+flag1_b15               0x2000'049c    0x1  Data  Gb  gpio.o [1]
+flag2_d10               0x2000'049d    0x1  Data  Gb  gpio.o [1]
+flag3_d11               0x2000'049e    0x1  Data  Gb  gpio.o [1]
+flag4_d12               0x2000'049f    0x1  Data  Gb  gpio.o [1]
+frame                   0x2000'01dc   0x34  Data  Gb  canfd_xieyi.o [1]
+frame_t                 0x2000'0210   0x48  Data  Gb  canfd_xieyi.o [1]
+free                     0x100'41c8    0x8  Code  Gb  heaptramp0.o [9]
+free_parsed_data         0x100'35bc   0x74  Code  Gb  canfd_xieyi.o [1]
+g_BusOff0               0x2000'0488    0x1  Data  Lc  as32x601_canfd.o [3]
+g_BusOff1               0x2000'0489    0x1  Data  Lc  as32x601_canfd.o [3]
+g_CANFD0_Frame_rev       0x100'57bc   0xdc  Code  Gb  canfd_xieyi.o [1]
+g_CANFD1_Frame_rev       0x100'5af4   0xdc  Code  Gb  canfd_xieyi.o [1]
+g_TEC0                  0x2000'0486    0x1  Data  Lc  as32x601_canfd.o [3]
+g_TEC1                  0x2000'0487    0x1  Data  Lc  as32x601_canfd.o [3]
+g_frame_count0          0x2000'0498    0x1  Data  Gb  canfd_xieyi.o [1]
+g_frame_count1          0x2000'049a    0x1  Data  Gb  canfd_xieyi.o [1]
+g_frame_type0           0x2000'0497    0x1  Data  Gb  canfd_xieyi.o [1]
+g_frame_type1           0x2000'0499    0x1  Data  Gb  canfd_xieyi.o [1]
+iic_enable_open          0x100'8c04   0xd8  Code  Gb  gpio.o [1]
+interstellar_config_send
+                         0x100'2d9c  0x420  Code  Gb  canfd_xieyi.o [1]
+large_electric_gpio_ctr
+                         0x100'2a48  0x128  Code  Gb  gpio.o [1]
+large_electric_status   0x2000'04a1    0x1  Data  Gb  gpio.o [1]
+main                     0x100'6b94  0x3c8  Code  Gb  main.o [6]
+out                      0x100'602c   0x5c  Code  Lc  xprintftiny.o [9]
+out_gpio_ctr             0x100'2874  0x210  Code  Gb  gpio.o [1]
+out_gpio_status         0x2000'04a0    0x1  Data  Gb  gpio.o [1]
+parse_can_message        0x100'1de8  0x330  Code  Gb  canfd_xieyi.o [1]
+power_gpio_ctr           0x100'2770  0x128  Code  Gb  gpio.o [1]
+power_gpio_status       0x2000'04a2    0x1  Data  Gb  gpio.o [1]
+printf                   0x100'40c4   0x3c  Code  Gb  printf.o [11]
+ptr1                    0x2000'0318    0x4  Data  Gb  main.o [6]
+ptr2                    0x2000'035c    0x4  Data  Gb  main.o [6]
+ptr3                    0x2000'03a0    0x4  Data  Gb  main.o [6]
+ptr4                    0x2000'03e4    0x4  Data  Gb  main.o [6]
+putchar                  0x100'5ff0   0x40  Code  Gb  putchar.o [11]
+read_cputick             0x100'0fa4   0x2c  Code  Gb  delay.o [5]
+receive_flag            0x2000'04a3    0x1  Data  Gb  main.o [6]
+retry_connt             0x2000'048a    0x1  Data  Gb  as32x601_canfd.o [3]
+rqu_id                  0x2000'048b    0x1  Data  Lc  canfd_xieyi.o [1]
+small_electric_gpio_ctr
+                         0x100'2b4c  0x2b0  Code  Gb  gpio.o [1]
+small_electric_status   0x2000'0484    0x2  Data  Gb  gpio.o [1]
+snprintf                 0x100'5e94   0x6c  Code  Gb  snprintf.o [11]
+swap_byte                0x100'37ec   0x20  Code  Gb  canfd_xieyi.o [1]
+timeout                 0x2000'0020    0x4  Data  Gb  as32x601_canfd.o [3]
+uart_send_hex_datas      0x100'413c   0x78  Code  Gb  print.o [1]
+wireframe               0x2000'0258   0x80  Data  Gb  canfd_xieyi.o [1]
+xingjian_reset           0x100'3130   0xf4  Code  Gb  uart_xingjian.o [1]
+
+
+[1] = C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Bsp_169489739208138388.dir
+[2] = C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Core_2780535767142203951.dir
+[3] = C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Peripherals_13669465130343999232.dir
+[4] = C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Startup_17868067532763321386.dir
+[5] = C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\System_896816979012834669.dir
+[6] = C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\User_4889033380472473340.dir
+[7] = dbg-rv32i.a
+[8] = di-rv32i.a
+[9] = dl-rv32im.a
+[10] = dlmath-rv32imf.a
+[11] = dln-rv32im.a
+
+  37'352 bytes of readonly  code memory
+   3'472 bytes of readonly  data memory
+   9'386 bytes of readwrite data memory
+
+Errors: none
+Warnings: none

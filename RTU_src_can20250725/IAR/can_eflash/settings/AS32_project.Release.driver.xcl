@@ -1,0 +1,15 @@
+"--core=RV32IMAFDCN_Xandesperf_Xcodense_Xeswincache_Zba_Zbb_Zbc_Zbs_Zkn_Zks_Zicbom_Zicboz_Zicbop" 
+
+"-p" 
+
+"C:\Program Files\IAR Systems\Embedded Workbench 9.2\riscv\config\debugger\ioriscv.ddf" 
+
+"--multicore_nr_of_cores=1" 
+
+"-d" 
+
+"sim" 
+
+
+
+

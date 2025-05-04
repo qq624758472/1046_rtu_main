@@ -1,0 +1,35 @@
+###############################################################################
+#
+# IAR Assembler V3.30.1.3961/W64 for RISC-V               04/May/2025  12:36:46
+# Copyright 2019-2023 IAR Systems AB.
+#
+#    Source file  =
+#        C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\Startup\as32x601_startup.S
+#    Command line =
+#        -f
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Startup_17868067532763321386.dir\as32x601_startup.o.rsp"
+#        ("C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\Startup\as32x601_startup.S"
+#        --core=RV32IMAF -o
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Startup_17868067532763321386.dir"
+#        -M<> -r -ld
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\List\")
+#        --dependencies=n
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Startup_17868067532763321386.dir\as32x601_startup.o.iar_deps"
+#    List file    =
+#        C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\List\as32x601_startup.lst
+#    Object file  =
+#        C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Startup_17868067532763321386.dir\as32x601_startup.o
+#
+###############################################################################
+
+##############################################################################
+# Module as32x601_startup                                                    #
+##############################################################################
+
+ 
+ 144 bytes in section .init   , module as32x601_startup
+ 
+ 144 bytes of CODE memory  in module as32x601_startup
+
+Errors: none
+Warnings: none

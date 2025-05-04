@@ -1,0 +1,38 @@
+###############################################################################
+#
+# IAR Assembler V3.30.1.3961/W64 for RISC-V               04/May/2025  12:36:47
+# Copyright 2019-2023 IAR Systems AB.
+#
+#    Source file  =
+#        C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\Core\as32x601_trapentry.S
+#    Command line =
+#        -f
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Core_2780535767142203951.dir\as32x601_trapentry.o.rsp"
+#        ("C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\Core\as32x601_trapentry.S"
+#        --core=RV32IMAF -o
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Core_2780535767142203951.dir"
+#        -M<> -r -ld
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\List\")
+#        --dependencies=n
+#        "C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Core_2780535767142203951.dir\as32x601_trapentry.o.iar_deps"
+#    List file    =
+#        C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\List\as32x601_trapentry.lst
+#    Object file  =
+#        C:\Users\holli\Desktop\board_code\share\RTU_src_can20250725_V7(canfd_BRS_chongfa)_TEC_OK\RTU_src_can20250725\IAR\can_eflash\Debug\Obj\Core_2780535767142203951.dir\as32x601_trapentry.o
+#
+###############################################################################
+
+##############################################################################
+# Module as32x601_trapentry                                                  #
+##############################################################################
+
+    221                        
+    222                        
+    223                                
+ 
+ 564 bytes in section .text.entry   , module as32x601_trapentry
+ 
+ 564 bytes of CODE memory  in module as32x601_trapentry
+
+Errors: none
+Warnings: none
