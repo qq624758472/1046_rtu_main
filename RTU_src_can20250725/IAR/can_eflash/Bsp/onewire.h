@@ -70,12 +70,14 @@ enum OneWireOpt
 
 typedef struct
 {
-	uint8_t DS2482Active[2];
-	uint8_t channelActive[2][8];
+	uint8_t DS2482Active[3];
+	uint8_t channelActive[3][8];
 	uint8_t DS1820Active0[8][10];
 	uint8_t DS1820Active1[8][10];
+    uint8_t DS1820Active2[8][10];
 	uint8_t ucROMTabl0[8][10 * 8];
 	uint8_t ucROMTabl1[8][10 * 8];
+    uint8_t ucROMTabl2[8][10 * 8];
 	uint16_t ow_temp_alarm[80][3];
 	uint8_t ow_alarm_sta[80];
 	uint8_t DS18B20_banned[80];

@@ -150,6 +150,27 @@ void User_APP0_I2C2_Init()
 //     GPIO_WriteBits(GPIOB, GPIO_Pin_4, GPIO_OCtrl_Voh);
 // }
 
+/**
+ * @brief 给one wire用的I2C写函数
+ * 
+ * @return uint8_t 
+ */
+uint8_t mss_I2c1_wr(uint8_t I2C2_address, uint8_t *data, uint16_t dataLen, uint8_t holdBus)
+{
+    return I2C_Master_Transmit(I2C3, I2C2_address, data, dataLen, I2C_TIMEOUT);
+}
+
+/**
+ * @brief 给one wire用的I2C读函数
+ * 
+ * @return uint8_t 
+ */
+uint8_t mss_I2c1_rd(uint8_t I2C2_address, uint8_t *data, uint16_t dataLen, uint8_t holdBus)
+{
+    return I2C_Master_Receive(I2C3, I2C2_address, data, dataLen, I2C_TIMEOUT);  
+}
+
+
 // I2C写函数实现
 uint8_t i2c_write(uint8_t i2cChan, uint8_t addr, uint8_t *data, uint8_t len)
 {

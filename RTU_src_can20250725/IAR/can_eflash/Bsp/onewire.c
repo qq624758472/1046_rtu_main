@@ -13,6 +13,9 @@
 #include "as32x601_plic.h"
 #include "onewire.h"
 #include "as32x601_i2c.h"
+#include "as32x601.h"
+#include "delay.h"
+#include "myprintf.h"
 // DS2482 state
 uint8_t I2C2_address = 0;
 uint8_t c1WS, cSPU, cPPM, cAPU = 0;
@@ -67,9 +70,9 @@ uint16_t sw16(uint16_t tmp)
 *********************************************************************************************/
 static int8_t DS2482_set_rom(uint8_t DS2482num, uint8_t channel, uint8_t num, uint8_t *pROM)
 {
-
-    if ((DS2482num > 1U) || (channel > 8U) || (num > 10U) || (pROM == NULL)) // 判断DS2482、通道号、DS18B20编号、是否在正常范围内
+    if ((DS2482num > 2U) || (channel > 8U) || (num > 10U) || (pROM == NULL)) // 判断DS2482、通道号、DS18B20编号、是否在正常范围内
     {
+        Printf("Check 18b20 value BU ZHENG  QUE\r\n");
         return FALSE; // 若不对则直接返回
     }
     else
@@ -79,11 +82,17 @@ static int8_t DS2482_set_rom(uint8_t DS2482num, uint8_t channel, uint8_t num, ui
             memcpy(&stOneWire.ucROMTabl0[channel][num * 8], pROM, 8); // 拷贝DS18B20ROM
             stOneWire.DS1820Active0[channel][num] = 0x01;             // 将当前DS18B20置位
         }
-        else // 第二片DS2482
+        else if (1U == DS2482num)// 第二片DS2482
         {
             memcpy(&stOneWire.ucROMTabl1[channel][num * 8], pROM, 8); // 拷贝DS18B20ROM
             stOneWire.DS1820Active1[channel][num] = 0x01;             // 将当前DS18B20置位
         }
+        else    // 第3片DS2482
+        {
+            memcpy(&stOneWire.ucROMTabl2[channel][num * 8], pROM, 8); // 拷贝DS18B20ROM
+            stOneWire.DS1820Active2[channel][num] = 0x01;             // 将当前DS18B20置位
+        }
+
         stOneWire.channelActive[DS2482num][channel] = 0x01; // 将当前通道置位
         stOneWire.DS2482Active[DS2482num] = 0x01;           // 将当前DS2482通道置位
     }
@@ -104,9 +113,10 @@ static int8_t DS2482_get_rom(uint8_t DS2482num, uint8_t channel, uint8_t num, ui
 {
     int8_t ret = FALSE;
 
-    if ((DS2482num > 1U) || (channel > 8U) || (num > 10U) || (pROM == NULL)) // 判断DS2482、通道号、DS18B20编号、是否在正常范围内
+    if ((DS2482num > 2U) || (channel > 8U) || (num > 10U) || (pROM == NULL)) // 判断DS2482、通道号、DS18B20编号、是否在正常范围内
     {
-        // print_string((uint8_t*)"DS2482_get_rom ERR\n");
+        //print_string((uint8_t*)"DS2482_get_rom ERR\n");
+        Printf("DS2482_get_rom arg error\r\n");
     }
     else
     {
@@ -120,11 +130,19 @@ static int8_t DS2482_get_rom(uint8_t DS2482num, uint8_t channel, uint8_t num, ui
                     ret = TRUE;
                 }
             }
-            else
+            else if (1U == DS2482num)
             {
                 if (0x01 == stOneWire.DS1820Active1[channel][num])
                 {
                     memcpy(pROM, &stOneWire.ucROMTabl1[channel][num * 8], 8); // 拷贝DS18B20ROM
+                    ret = TRUE;
+                }
+            }
+            else
+            {
+                if (0x01 == stOneWire.DS1820Active2[channel][num])
+                {
+                    memcpy(pROM, &stOneWire.ucROMTabl2[channel][num * 8], 8); // 拷贝DS18B20ROM
                     ret = TRUE;
                 }
             }
@@ -146,7 +164,7 @@ static int8_t DS2482_get_rom(uint8_t DS2482num, uint8_t channel, uint8_t num, ui
 *********************************************************************************************/
 static int8_t DS2482_set_addr(uint8_t addr)
 {
-    if ((DS2482_0 == addr) || (DS2482_1 == addr))
+    if ((DS2482_0 == addr) || (DS2482_1 == addr) ||  (DS2482_2 == addr))
     {
         I2C2_address = addr;
     }
@@ -175,6 +193,7 @@ static int8_t DS2482_detect(void)
     // reset the DS2482 ON selected address
     if (!DS2482_reset())
     {
+        Printf("DS2482_reset error\r\n");
         return FALSE;
     }
 
@@ -183,10 +202,11 @@ static int8_t DS2482_detect(void)
     cSPU = 0x00;
     cPPM = 0x00;
     cAPU = CONFIG_APU;
-
+    delay_ms(20);
     // write the default configuration setup
     if (!DS2482_write_config(c1WS | cSPU | cPPM | cAPU))
     {
+        Printf("DS2482_write_config error\r\n");
         return FALSE;
     }
 
@@ -210,8 +230,9 @@ static int8_t DS2482_reset(void)
 
     temp[0] = CMD_DRST;
     mss_I2c1_wr(I2C2_address, &temp[0], 1, MSS_I2C_HOLD_BUS);
+    delay_ms(20);
     mss_I2c1_rd(I2C2_address, &onewire_status, 1, MSS_I2C_RELEASE_BUS); // 读取复位后状态
-
+    
     // check for failure due to incorrect read back of status
     return ((onewire_status & 0xF7) == 0x10);
 }
@@ -235,6 +256,7 @@ static int8_t DS2482_write_config(uint8_t config)
     temp[0] = CMD_WCFG;
     temp[1] = config | (~config << 4);
     mss_I2c1_wr(I2C2_address, &temp[0], 2, MSS_I2C_HOLD_BUS);
+    delay_ms(20);
     mss_I2c1_rd(I2C2_address, &uiReadCfg, 1, MSS_I2C_RELEASE_BUS); // 回读配置参数
 
     // check for failure due to incorrect read back
@@ -242,11 +264,11 @@ static int8_t DS2482_write_config(uint8_t config)
     {
         // handle error
         // ...
-
+        Printf("config != uiReadCfg error\r\n");
         DS2482_reset();
         return FALSE;
     }
-
+    Printf("DS2482_write_config success\r\n");
     return TRUE;
 }
 
@@ -302,6 +324,7 @@ static uint8_t DS2482_channel_select(uint8_t channel)
     }
     temp[1] = ch;                                              // 通道选择命令
     mss_I2c1_wr(I2C2_address, &temp[0], 2, MSS_I2C_HOLD_BUS);  // 向读通写命令
+    delay_ms(20);
     mss_I2c1_rd(I2C2_address, &check, 1, MSS_I2C_RELEASE_BUS); // 回读通道选择
 
     return (check != ch_read); // 返回比较值
@@ -325,30 +348,37 @@ static int8_t OWReset(void)
 
     temp[0] = CMD_1WRS;
     mss_I2c1_wr(I2C2_address, &temp[0], 1, MSS_I2C_HOLD_BUS);
+    delay_ms(20);
     mss_I2c1_rd(I2C2_address, &onewire_status, 1, MSS_I2C_HOLD_BUS); // 读状态寄存器
     do
     {
+        delay_ms(3);
         mss_I2c1_rd(I2C2_address, &onewire_status, 1, MSS_I2C_HOLD_BUS);
     } while ((onewire_status & STATUS_1WB) && (poll_count++ < POLL_LIMIT)); // 判断1-wire是否busy
 
-    mss_I2c1_rd(I2C2_address, &onewire_status, 1, MSS_I2C_RELEASE_BUS); // 为了发送stop位
+    //mss_I2c1_rd(I2C2_address, &onewire_status, 1, MSS_I2C_RELEASE_BUS); // 为了发送stop位
 
     // check for failure due to poll limit reached
     if (poll_count >= POLL_LIMIT)
     {
         // handle error
         // ...
+        delay_ms(10);
         DS2482_reset();
+        delay_ms(10);
+        Printf("OWReset error1\r\n");
         return FALSE;
     }
-
+    delay_ms(10);
     // check for presence detect
     if (onewire_status & STATUS_PPD)
     {
+        Printf("OWReset success\r\n");
         return TRUE;
     }
     else
     {
+        Printf("OWReset error onewire_status not STATUS_PPD\r\n");
         return FALSE;
     }
 }
@@ -369,6 +399,7 @@ static void OWWriteByte(uint8_t sendbyte)
     temp[0] = CMD_1WWB;
     temp[1] = sendbyte;
     mss_I2c1_wr(I2C2_address, &temp[0], 2, MSS_I2C_HOLD_BUS); // 发送命令
+    delay_ms(20);
     // I2C_Master_Transmit(I2C2, I2C2_address, &temp[0], 2, 1000);
     mss_I2c1_rd(I2C2_address, &onewire_status, 1, MSS_I2C_HOLD_BUS); // 读取状态寄存器
     // I2C_Master_Receive(I2C2, I2C2_address, &temp[0], 2, 1000);
@@ -376,14 +407,17 @@ static void OWWriteByte(uint8_t sendbyte)
     {
         mss_I2c1_rd(I2C2_address, &onewire_status, 1, MSS_I2C_HOLD_BUS); // 读取状态寄存器
     } while ((onewire_status & STATUS_1WB) && (poll_count++ < POLL_LIMIT));
-
-    mss_I2c1_rd(I2C2_address, &onewire_status, 1, MSS_I2C_RELEASE_BUS); // 读取状态寄存器，为了发送stop位
+    delay_ms(10);
+    //mss_I2c1_rd(I2C2_address, &onewire_status, 1, MSS_I2C_RELEASE_BUS); // 读取状态寄存器，为了发送stop位
 
     // check for failure due to poll limit reached
     if (poll_count >= POLL_LIMIT)
     {
         DS2482_reset(); // DS2482重启
+        Printf("OWWriteByte error\r\n");
     }
+    else
+      Printf("OWWriteByte success\r\n");
     return;
 }
 
@@ -400,6 +434,7 @@ static uint8_t OWReadByte(void)
 
     temp[0] = CMD_1WRB;
     mss_I2c1_wr(I2C2_address, &temp[0], 1, MSS_I2C_HOLD_BUS);
+    delay_ms(20);
     mss_I2c1_rd(I2C2_address, &onewire_status, 1, MSS_I2C_HOLD_BUS); // 读取状态寄存器
 
     do
@@ -419,6 +454,7 @@ static uint8_t OWReadByte(void)
     temp[0] = CMD_SRP;
     temp[1] = 0xE1; // 设置参数为读取数据
     mss_I2c1_wr(I2C2_address, &temp[0], 2, MSS_I2C_HOLD_BUS);
+    delay_ms(20);
     mss_I2c1_rd(I2C2_address, &data, 1, MSS_I2C_RELEASE_BUS);
 
     return data;
@@ -454,7 +490,7 @@ void Read_Temperature(void)
     {
     case ONEWIRE_FREE: // 1-wire初始化
     {
-        if ((0x01 == stOneWire.DS2482Active[0]) || (0x01 == stOneWire.DS2482Active[1]))
+        if ((0x01 == stOneWire.DS2482Active[0]) || (0x01 == stOneWire.DS2482Active[1]) || (0x01 == stOneWire.DS2482Active[2]))
         {
             DS2482num = 0xff;
             channel = 0xff;
@@ -478,13 +514,15 @@ void Read_Temperature(void)
                 {
                     OWWriteByte(ROM_NO[i]); // 匹配ROM
                     rom_change_ow.rom_s_ow[i] = ROM_NO[i];
+                    delay_ms(2);
                 }
                 OWWriteByte(Read_Temp); // 读取温度
-
+                delay_ms(2);
                 temp2[0] = OWReadByte(); // 写命令
+                delay_ms(20);
                 temp2[1] = OWReadByte();
                 Temp = (temp2[1] << 8) + temp2[0]; // 读取温度
-
+                Printf("DS2482num=%d, channel=%d, Temp=0x%x\r\n",DS2482num,channel, Temp);
                 // OwMatchGccs(Temp, rom_change_ow.rom_b_ow, rom_change_zd.rom_b_zd); //lsh 匹配温度值与对应工参位置
                 OWReset(); // 1-wire总线重置
             }
@@ -517,16 +555,22 @@ void Read_Temperature(void)
             {
                 DS2482_set_addr(DS2482_1);
             }
+            if (2U == DS2482num)
+            {
+                DS2482_set_addr(DS2482_2);
+            }
 
             for (Cir = 0; Cir < 5; Cir++)
             {
                 if (!DS2482_channel_select(channel)) // 进行DS2482-800的通道选择，直到成功。
                 {
+                    Printf("DS2482_channel_select channel=%d success\r\n",channel);
                     break;
                 }
             }
-
+            Printf("OWReset =====>0\r\n");
             OWReset();
+            Printf("OWReset =====>1\r\n");
             OWWriteByte(Skip_Rom);    // 跳过ROM匹配
             OWWriteByte(Temp_Change); // 启动所有温度转换
             // cpu_time = Get_cpu_Time(); // 记录当前时间
@@ -609,6 +653,7 @@ static int OWSearch(void)
             LastDiscrepancy = 0;
             LastDeviceFlag = FALSE;
             LastFamilyDiscrepancy = 0;
+            Printf("OWReset error2 \r\n");
             return FALSE;
         }
 
@@ -723,6 +768,7 @@ static int OWSearch(void)
         LastDiscrepancy = 0;
         LastDeviceFlag = FALSE;
         LastFamilyDiscrepancy = 0;
+        Printf("OWSearch error \r\n");
         search_result = FALSE;
     }
 
@@ -753,6 +799,7 @@ static unsigned char DS2482_search_triplet(int search_direction)
     temp[0] = CMD_1WT;
     temp[1] = search_direction ? 0x80 : 0x00;
     mss_I2c1_wr(I2C2_address, &temp[0], 2, MSS_I2C_HOLD_BUS);
+    delay_ms(20);
     mss_I2c1_rd(I2C2_address, &status, 1, MSS_I2C_HOLD_BUS); // 读状态寄存器
 
     do
@@ -760,7 +807,7 @@ static unsigned char DS2482_search_triplet(int search_direction)
         mss_I2c1_rd(I2C2_address, &status, 1, MSS_I2C_HOLD_BUS); // 读状态寄存器
     } while ((status & STATUS_1WB) && (poll_count++ < POLL_LIMIT));
 
-    mss_I2c1_rd(I2C2_address, &status, 1, MSS_I2C_RELEASE_BUS); // 为了发送stop位
+    //mss_I2c1_rd(I2C2_address, &status, 1, MSS_I2C_RELEASE_BUS); // 为了发送stop位
 
     // check for failure due to poll limit reached
     if (poll_count >= POLL_LIMIT)
@@ -794,8 +841,9 @@ void OWGetRom(void)
 
     memset(&stOneWire, 0x00, sizeof(stOneWire));
 
-    for (DS2482num = 0U; DS2482num < 2U; DS2482num++) // 轮询所有DS2482
+    for (DS2482num = 0U; DS2482num < 3U; DS2482num++) // 轮询所有DS2482
     {
+        Printf("DS2428 select DS2482num=%d\r\n",(int)DS2482num);
         if (0U == DS2482num) // 第一片DS2482
         {
             DS2482_set_addr(DS2482_0);
@@ -806,34 +854,44 @@ void OWGetRom(void)
             DS2482_set_addr(DS2482_1);
         }
 
+        if (2U == DS2482num) // 第3片DS2482
+        {
+            DS2482_set_addr(DS2482_2);
+        }
+
         for (Cir = 0; Cir < 5; Cir++)
         {
-            if (TRUE == DS2482_detect()) // 进行DS2482选择，直到成功。
+            if (TRUE == DS2482_detect()) // 进行DS2482选择，直到成功。总设置配置失败，单步调试可以，  DS2428 检测例程，该例程设置12C地址，然后执行设备复位，最后将配置字节写入默认值
             {
+                Printf("DS2428 check success, set default setting\r\n");
                 break;
             }
         }
 
-        for (channel = 0U; channel < 8u; channel++) // 进行DS2482-800的通道选择，直到成功。
+        //暂时先设置通道0，目前测试只有通道0有18b20
+        //channel = 0;
+        for (channel = 0; channel < 8; channel++) // 进行DS2482-800的通道选择，直到成功。
         {
             for (Cir = 0; Cir < 5; Cir++)
             {
                 if (!DS2482_channel_select(channel))
-                    ; //
                 {
+                    Printf("channel select success, channel=%d\r\n",(int)channel);
                     break;
                 }
             }
 
             num = 0U;
-
+            //Printf("DS2482num=%d, chan=%d,\r\n",(int)DS2482num,(int)channel);
             if (TRUE == OWFirst()) // 寻找第一个DS18B20
             {
-                DS2482_set_rom(DS2482num, channel, 0U, &ROM_NO[0]);
-                for (num = 1U; num < 10; num++) // 轮询所有DS18B20
+                Printf("DS2482num=%d, chan=%d,alread check DS18B20\r\n",(int)DS2482num,(int)channel);
+                DS2482_set_rom(DS2482num, channel, 0, &ROM_NO[0]);
+                for (num = 1; num < 10; num++) // 轮询所有DS18B20
                 {
                     if (TRUE == OWNext())
                     {
+                        Printf("DS2482num=%d, chan=%d,alread check DS18B20\r\n",(int)DS2482num,(int)channel);
                         DS2482_set_rom(DS2482num, channel, num, &ROM_NO[0]);
                     }
                     else
@@ -841,6 +899,10 @@ void OWGetRom(void)
                         break;
                     }
                 }
+            }
+            else
+            {
+                Printf("channel =%d ,not check DS18B20\r\n",(int)channel);
             }
         }
     }
@@ -865,11 +927,11 @@ static void OWGetNextChannel(uint8_t *pDS2482num, uint8_t *pchannel)
     DS2482num = *pDS2482num; // DS2482序号
     channel = *pchannel;     // DS18B20序号
 
-    if ((DS2482num < 2U) && (channel < 8U)) // 判断序号是否有效
+    if ((DS2482num < 3U) && (channel < 8U)) // 判断序号是否有效
     {
         if (7U == channel) // 若为最后一个通道
         {
-            DS2482num = (DS2482num + 1) % 0x02; // 切换一个DS2482
+            DS2482num = (DS2482num + 1) % 0x03; // 切换一个DS2482
         }
         *pDS2482num = DS2482num;
         channel = (channel + 1) % 0x08; // 通道号向后加一

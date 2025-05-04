@@ -4,7 +4,7 @@
  * @Autor: ruog__
  * @Date: 2025-07-23 16:26:18
  * @LastEditors: ruog__
- * @LastEditTime: 2025-05-04 05:55:28
+ * @LastEditTime: 2025-05-04 12:40:40
  */
 #include "main.h"
 #include "print.h"
@@ -17,6 +17,7 @@
 #include "gpio.h"
 #include "uart_dianji.h"
 #include "uart_xingjian.h"
+#include "onewire.h"
 /* Private typedef -----------------------------------------------------------*/
 
 void Systemclock_Init();
@@ -258,17 +259,15 @@ void main_iic_test()
         delay_ms(20);
     }
 #endif
-#if 0 // 18b20测试
-    // I2C_Master_Transmit(I2C1, 0x01, tdata, 8, 1000);//地址最后一bit不用管，此函数加1了
+#if 1 // 18b20测试
+    float temp;
+    OWGetRom();
     while (1)
     {
-        /* I2C master receive */
-        // I2C_Master_Receive(I2C1, 0x01, rdata, 8, 1000);
-        // for(i = 0; i < 8; i++)
-        //     Printf("%x\t",rdata[i]);
-        read_ds18b20_temperature(&temp);
-        Printf("temp=%f\r\n", temp);
+        
+        Read_Temperature();
         delay_ms(200);
+        Printf("start check\r\n");
     }
 #endif
 }
@@ -534,7 +533,7 @@ void main()
     }
 #endif
 
-#if 0
+#if 0 //i2c测试, 里边有i2c的ADC采集测试和one-wire测试
     User_appTS_uart6_Init(115200);//调试串口设置
     main_iic_test();
 #endif
@@ -658,7 +657,7 @@ void main()
 #if 1
         if (clock_adc_get++ > 100)
         {
-#if 0
+#if 1
             User_ADC_GetAllValue();
             PrintAllADCValues();
 #endif
