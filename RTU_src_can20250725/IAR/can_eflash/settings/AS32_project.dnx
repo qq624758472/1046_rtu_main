@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
 <settings>
     <Jet>
+        <JetConnSerialNo>201273</JetConnSerialNo>
+        <JetConnFoundProbes />
+        <PrevWtdReset>Hardware</PrevWtdReset>
         <DisableInterrupts>0</DisableInterrupts>
         <LeaveRunning>0</LeaveRunning>
         <CpuHaltOnBreakpointSet>0</CpuHaltOnBreakpointSet>
         <MultiCoreRunAll>0</MultiCoreRunAll>
         <OnlineReset>Software</OnlineReset>
-        <JetConnSerialNo>201273</JetConnSerialNo>
-        <JetConnFoundProbes />
-        <PrevWtdReset>Hardware</PrevWtdReset>
     </Jet>
     <PlDriver>
-        <MemConfigValue>C:\Program Files\IAR Systems\Embedded Workbench 9.2\riscv\config\debugger\ANSILIC\AS32x601_InternalFlash.ddf</MemConfigValue>
         <FirstRun>0</FirstRun>
+        <MemConfigValue>C:\Program Files\IAR Systems\Embedded Workbench 9.2\riscv\config\debugger\ANSILIC\AS32x601_InternalFlash.ddf</MemConfigValue>
     </PlDriver>
     <DebugChecksum>
         <Checksum>4203796649</Checksum>
