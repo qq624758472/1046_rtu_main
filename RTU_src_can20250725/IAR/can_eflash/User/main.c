@@ -260,7 +260,7 @@ void main_iic_test()
     }
 #endif
 #if 1 // 18b20²âÊÔ
-    float temp;
+
     OWGetRom();
     while (1)
     {
@@ -551,7 +551,10 @@ void main()
     ADC_SoftRegularConvert(ADC2);
     Printf("CANFD V7_TEC_OK.\r\n");
     Printf("The CAN FD has init.\r\n");
-    Printf("The CAN FD has init success 1\r\n");
+
+    //one-wire init
+    OWGetRom();
+    Printf("The OWGetRom init success\r\n");
     /* Initialize print usart */
     User_GPIO_Init(); // Åäµç¿ØÖÆµÄGPIO
     // canfd_sel = 1 : canfd_brs
@@ -662,10 +665,10 @@ void main()
             PrintAllADCValues();
 #endif
 
-#if 0
-            main_iic_test();
-#endif
+            Read_Temperature();
             clock_adc_get = 0;
+            delay_ms(200);
+            Printf("Read_Temperature complay!\r\n");
         }
 #endif
 #if 1

@@ -12,6 +12,7 @@
 #include "uart_xingjian.h"
 #include "uart_dianji.h"
 #include "print.h"
+#include "onewire.h"
 
 // 对外8路gpio控制保存的当前状态
 extern uint8_t out_gpio_status;
@@ -506,6 +507,7 @@ void canfd_build_dianji_pack_T()
     }
 }
 
+extern ds2482_temp_info tempAll;
 // wire数据组包
 void canfd_build_wire_pack()
 {
@@ -517,28 +519,8 @@ void canfd_build_wire_pack()
     wireframe.data_length = swap_byte(0x007D); // 从字节3到127的总长度,7D
     // wireframe.data_length = swap_byte(sizeof(wireframe) - sizeof(wireframe.data_type)*4); // 数据长度
 
-    // 填充前5路温度数据 (实际值乘以16，符合协议表示方法)
-    wireframe.first_5wires.temp1 = 25 * 100; // 25.0°C (250 = 25.0 * 10)
-    wireframe.first_5wires.temp2 = 25 * 100; // 25.5°C
-    wireframe.first_5wires.temp3 = 0 * 100;  // 0.0°C (开路或故障)
-    wireframe.first_5wires.temp4 = 30 * 100; // 30.0°C
-    wireframe.first_5wires.temp5 = 30 * 100; // 25.0°C
 
-    // 清空预留区域
-    memset(wireframe.reserved1, 0, sizeof(wireframe.reserved1));
-
-    // ===== 第二帧数据 =====
-    // ireframe.frame_seq = 0x01;         // 第二帧序号固定为1
-
-    // 填充后5路温度数据
-    wireframe.second_5wires.temp6 = 25 * 100;  //  // 28.0°C
-    wireframe.second_5wires.temp7 = 30 * 100;  // 9.0°C
-    wireframe.second_5wires.temp8 = 25 * 100;  //  // 26.0°C
-    wireframe.second_5wires.temp9 = 30 * 100;  // 25.5°C
-    wireframe.second_5wires.temp10 = 18 * 100; // 31.0°C
-
-    // 清空预留区域
-    memset(wireframe.reserved2, 0, sizeof(wireframe.reserved2));
+    memcpy(wireframe.tempall,&tempAll,sizeof(tempAll)); // 复制温度数据  
 
     // ===== 计算校验和 =====
     wireframe.checksum = 0;
@@ -549,20 +531,6 @@ void canfd_build_wire_pack()
     {
         wireframe.checksum += data_ptr[i];
     }
-
-    // 填充前5路温度数据 (实际值乘以16，符合协议表示方法)
-    wireframe.first_5wires.temp1 = swap_byte(wireframe.first_5wires.temp1);
-    wireframe.first_5wires.temp2 = swap_byte(wireframe.first_5wires.temp2);
-    wireframe.first_5wires.temp3 = swap_byte(wireframe.first_5wires.temp3);
-    wireframe.first_5wires.temp4 = swap_byte(wireframe.first_5wires.temp4);
-    wireframe.first_5wires.temp5 = swap_byte(wireframe.first_5wires.temp5);
-
-    // 填充后5路温度数据
-    wireframe.second_5wires.temp6 = swap_byte(wireframe.second_5wires.temp6);
-    wireframe.second_5wires.temp7 = swap_byte(wireframe.second_5wires.temp7);
-    wireframe.second_5wires.temp8 = swap_byte(wireframe.second_5wires.temp8);
-    wireframe.second_5wires.temp9 = swap_byte(wireframe.second_5wires.temp9);
-    wireframe.second_5wires.temp10 = swap_byte(wireframe.second_5wires.temp10);
 }
 
 // 协议解析函数

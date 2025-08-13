@@ -35,6 +35,8 @@ union ROM_CHANGE_OW rom_change_ow;
 // extern compare_value comp_value;
 onewire_t stOneWire = {0};
 
+ds2482_temp_info tempAll;
+
 static int8_t DS2482_set_rom(uint8_t DS2482num, uint8_t channel, uint8_t num, uint8_t *pROM);
 static int8_t DS2482_get_rom(uint8_t DS2482num, uint8_t channel, uint8_t num, uint8_t *pROM);
 static int8_t DS2482_set_addr(uint8_t addr);
@@ -500,10 +502,10 @@ void Read_Temperature(void)
     }
     case ONEWIRE_READTEMP: // 读取温度
     {
-        for (num = 0U; num < 8U; num++)
+        for (num = 0U; num < 10; num++)
         {
             // CheackGcsqComm(); // 检测工参采集指令
-            // 从ROM值列表中取出ds18s20序列号至ROM_NO[]中.
+            // 从ROM值列表中取出ds18s20序列号至ROM_NO[]中.    有DS2482num个i2c芯片，每个芯片有channel个通道，每个通道有num个DS18B20
             if (TRUE == DS2482_get_rom(DS2482num, channel, num, &ROM_NO[0]))
             {
                 temp2[0] = 0x0F;
@@ -522,6 +524,7 @@ void Read_Temperature(void)
                 delay_ms(20);
                 temp2[1] = OWReadByte();
                 Temp = (temp2[1] << 8) + temp2[0]; // 读取温度
+                tempAll.temp[DS2482num][channel][num] = Temp;
                 Printf("DS2482num=%d, channel=%d, Temp=0x%x\r\n",DS2482num,channel, Temp);
                 // OwMatchGccs(Temp, rom_change_ow.rom_b_ow, rom_change_zd.rom_b_zd); //lsh 匹配温度值与对应工参位置
                 OWReset(); // 1-wire总线重置

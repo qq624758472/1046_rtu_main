@@ -170,30 +170,9 @@ typedef struct {
     uint8_t data_type;       // 字节3: 数据类型 (固定为0x35)
     uint8_t data_encoding;   // 字节4: 数据编码 (固定为0x02)
     
-    // 前5路1-Wire温度数据 (每路2字节*5路=10字节)
-    struct {
-        uint16_t temp1;     // 路1温度
-        uint16_t temp2;     // 路2温度
-        uint16_t temp3;     // 路3温度
-        uint16_t temp4;     // 路4温度
-        uint16_t temp5;     // 路5温度
-    } first_5wires;
+    uint8_t tempall[100]; //采集的所有温度值
     
-    uint8_t reserved1[50];   // 字节14-64剩余部分 (填充)
-
-    // ===== 第二帧 (字节65-128) =====
-    //uint8_t frame_seq;      // 字节65: 帧序号 (第二帧固定为1)
-    
-    // 后5路1-Wire温度数据 (每路2字节*5路=10字节)
-    struct {
-        uint16_t temp6;     // 路6温度
-        uint16_t temp7;     // 路7温度
-        uint16_t temp8;     // 路8温度
-        uint16_t temp9;     // 路9温度
-        uint16_t temp10;    // 路10温度
-    } second_5wires;        //字节75
-    
-    uint8_t reserved2[52];   // 字节76-127: 预留
+    uint8_t reserved2[22];   // 字节106-127: 预留
     uint8_t checksum;        // 字节128: 累加校验和
 } FiveWireTelemetryFrame;
 

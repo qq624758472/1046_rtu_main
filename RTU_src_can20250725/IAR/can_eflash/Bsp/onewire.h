@@ -97,6 +97,15 @@ union ROM_CHANGE_OW
 	u64 rom_b_ow;
 }; // one_wire总线读取rom值
 
+
+#pragma pack(1)
+// 定义电源控制结构体
+typedef struct
+{
+    uint16_t temp[3][2][10];
+} ds2482_temp_info;
+#pragma pack()
+
 void Read_Temperature(void);
 
 void OWGetRom(void);
