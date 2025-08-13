@@ -17,24 +17,24 @@ USART_TypeDef *currentXingjianUart = USART1; // 当前使用的星间模块串�
 
 // 星间模块透传数据接收缓冲区和组包状态
 #define XJ_RX_BUFFER_SIZE 2048
-static uint8_t xj_rx_buffer[XJ_RX_BUFFER_SIZE];
-static uint16_t xj_rx_write_ptr = 0;
-static uint16_t xj_rx_read_ptr = 0;
+ uint8_t xj_rx_buffer[XJ_RX_BUFFER_SIZE];
+ uint16_t xj_rx_write_ptr = 0;
+ uint16_t xj_rx_read_ptr = 0;
 #define XJ_FILE_MAX_SIZE 8192
-static uint8_t xj_file_buffer[XJ_FILE_MAX_SIZE];
-static uint32_t xj_file_total_len = 0;
-static uint32_t xj_file_received_len = 0;
-static uint8_t xj_file_task_seq = 0xFF;
-static uint8_t xj_file_data_type = 0;
-static uint8_t xj_file_data_encoding = 0;
-static uint8_t xj_file_receiving = 0; // 0:无任务 1:正在接收
+ uint8_t xj_file_buffer[XJ_FILE_MAX_SIZE];
+ uint32_t xj_file_total_len = 0;
+ uint32_t xj_file_received_len = 0;
+ uint8_t xj_file_task_seq = 0xFF;
+ uint8_t xj_file_data_type = 0;
+ uint8_t xj_file_data_encoding = 0;
+ uint8_t xj_file_receiving = 0; // 0:无任务 1:正在接收
 
 // 任务缓存结构体
-static TransparentFileTask g_transparent_task = {0};
+ TransparentFileTask g_transparent_task = {0};
 // 全局任务状态变量
-static uint32_t g_task_total_len = 0;    // 本次任务总长度（可能大于1024）
-static uint32_t g_task_received_len = 0; // 已累计接收长度
-static uint8_t g_task_seq = 0xFF;        // 当前任务序号（无效值0xFF）
+ uint32_t g_task_total_len = 0;    // 本次任务总长度（可能大于1024）
+ uint32_t g_task_received_len = 0; // 已累计接收长度
+ uint8_t g_task_seq = 0xFF;        // 当前任务序号（无效值0xFF）
 
 // 串口0数据的接收， 当前测试电机遥测值的返回
 extern uint8_t data[64];
@@ -381,6 +381,8 @@ int xingjian_reset(uint8_t xingjianNum)
     }
 }
 
+
+
 /**
  * @brief 配置星间模块的工作模式, 两M1和M0 引脚进行拉低或者拉高来配置
  *         RTU连接了2个星间模块，所以是4个GPIO口。分别是PB11
@@ -457,8 +459,226 @@ int xingjian_change_config_mode(uint8_t xingjianNum, uint8_t mode)
     }
 }
 
+
+/**
+ * @brief Parse AT command response and fill configuration struct
+ * @param config Pointer to canfdInterstellarModuleConfig struct
+ * @param response Raw response string from module
+ * @param cmd Corresponding AT command type
+ */
+void parse_config_response(canfdInterstellarModuleConfig *config, char *response, AtCommandType cmd)
+{
+    if (!config || !response) 
+    {
+        Printf("parse_config_response arg error\r\n");
+        return;
+    }
+    // Parse response based on command type
+    switch (cmd)
+    {
+        case AT_CMD_NONE_MODE_QUERY:
+            // Response format: "AT+MODE=0" (0-透传模式, 1-WOR模式, 2-配置模式)
+            config->mode = *response;  // 1字节数据
+            break;
+
+        case AT_CMD_NONE_ADDR_QUERY:
+            //对应AT+ADDR=?：查询当前模块地址，返回示例：AT+ADDR=1234
+            memcpy(&config->module_address, response, 2);  // 2字节数据
+            break;
+
+        case AT_CMD_NONE_NETID_QUERY:
+            // 对应AT+NETID=?：查询当前网络ID，返回示例：AT+NETID=2
+            config->network_address = *response;  // 1字节数据
+            break;
+
+        case AT_CMD_NONE_UART_QUERY:
+            // Response format: "AT+UART=3,0" (3=115200, 0=8N1)
+            config->serial_baud_rate = *response;        // 第一个1字节数据
+            config->parity_bit = *(response + 2);         // 跳过逗号，第二个1字节数据
+            break;
+
+        case AT_CMD_NONE_RATE_QUERY:
+            // Response format: "AT+RATE=7" (7=62.5K for 400MHz, 15.6K for 230MHz)
+            config->airspeed_400mhz = *response;  // 1字节数据
+            config->airspeed_230mhz = *response;  // 1字节数据（保持一致）
+            break;
+
+        case AT_CMD_NONE_CHANNEL_QUERY:
+            // Response format: "AT+CHANNEL=23" (0~83)
+            config->channel = *response;  // 1字节数据
+            break;
+
+        case AT_CMD_NONE_PACKET_QUERY:
+            // Response format: "AT+PACKET=0" (0=240B, 1=128B, etc.)
+            config->packet_length = *response;  // 1字节数据
+            break;
+
+        case AT_CMD_NONE_WOR_QUERY:
+            // Response format: "AT+WOR=0" (0=receive, 1=transmit)
+            config->wor_role = *response;  // 1字节数据
+            break;
+
+        case AT_CMD_NONE_POWER_QUERY:
+            // Response format: "AT+POWER=0" (0=30dBm, 1=27dBm, etc.)
+            config->tx_power = *response;  // 1字节数据
+            break;
+
+        case AT_CMD_NONE_TRANS_QUERY:
+            // Response format: "AT+TRANS=1" (0=transparent, 1=fixed-point)
+            config->transmission_mode = *response;  // 1字节数据
+            break;
+
+        case AT_CMD_NONE_ROUTER_QUERY:
+            // Response format: "AT+ROUTER=1" (0=disable, 1=enable)
+            config->relay_mode = *response;  // 1字节数据
+            break;
+
+        case AT_CMD_NONE_LBT_QUERY:
+            // Response format: "AT+LBT=1" (0=disable, 1=enable)
+            config->listen_before_talk = *response;  // 1字节数据
+            break;
+
+        case AT_CMD_NONE_ERSSI_QUERY:
+            // Response format: "AT+ERSSI=1" (0=disable, 1=enable)
+            config->env_rssi = *response;  // 1字节数据
+            break;
+
+        case AT_CMD_NONE_DRSSI_QUERY:
+            // Response format: "AT+DRSSI=1" (0=disable, 1=enable)
+            config->data_rssi = *response;  // 1字节数据
+            break;
+
+        case AT_CMD_NONE_KEY_QUERY:
+            // Response format: "AT+KEY=1234" (0~65535)
+            memcpy(&config->encryption_key, response, 2);  // 2字节数据
+            break;
+
+        case AT_CMD_NONE_DELAY_QUERY:
+            // Response format: "AT+DELAY=1000" (0~65535 ms)
+            memcpy(&config->wor_sleep_delay, response, 2);  // 2字节数据
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+/**
+ * @brief Query module config via AT commands and fill into struct
+ * @param xingjianNum Module number (0 or 1)
+ * @param config Pointer to canfdInterstellarModuleConfig struct to fill
+ * @return 0: success -1: invalid number -2: UART error
+ */
+int xingjian_get_config(uint8_t xingjianNum, canfdInterstellarModuleConfig *config)
+{
+    if (!config)
+    {
+        Printf("Invalid config struct pointer\r\n");
+        return -1;
+    }
+
+    uint16_t count = 0;
+
+    // Initialize struct to default values
+    memset(config, 0, sizeof(canfdInterstellarModuleConfig));
+    config->working_status = 1;  // Assume normal working status (customize as needed)
+
+    // Save current UART and switch to target module
+    USART_TypeDef *prevUart = currentXingjianUart;
+    if (xingjianNum == 0)
+    {
+        currentXingjianUart = USART1;
+    }
+    else if (xingjianNum == 1)
+    {
+        currentXingjianUart = USART3;
+    }
+    else
+    {
+        Printf("Invalid module number: %d\r\n", xingjianNum);
+        return -1;
+    }
+
+    Printf("\n===== Querying module %d full config =====\r\n", xingjianNum);
+
+    // Define query commands and their types (all =?结尾的查询指令)
+    AtCommandType query_cmds[] = {
+        AT_CMD_NONE_MODE_QUERY,       // 工作模式
+        AT_CMD_NONE_ADDR_QUERY,       // 模块地址
+        AT_CMD_NONE_NETID_QUERY,      // 网络地址
+        AT_CMD_NONE_UART_QUERY,       // 串口波特率+校验位
+        AT_CMD_NONE_RATE_QUERY,       // 空速
+        AT_CMD_NONE_CHANNEL_QUERY,    // 信道
+        AT_CMD_NONE_PACKET_QUERY,     // 封包长度
+        AT_CMD_NONE_WOR_QUERY,        // WOR角色
+        AT_CMD_NONE_POWER_QUERY,      // 发射功率
+        AT_CMD_NONE_TRANS_QUERY,      // 传输模式
+        AT_CMD_NONE_ROUTER_QUERY,     // 中继模式
+        AT_CMD_NONE_LBT_QUERY,        // LBT功能
+        AT_CMD_NONE_ERSSI_QUERY,      // 环境RSSI
+        AT_CMD_NONE_DRSSI_QUERY,      // 数据RSSI
+        AT_CMD_NONE_KEY_QUERY,        // 加密密钥
+        AT_CMD_NONE_DELAY_QUERY       // WOR休眠延迟
+    };
+    uint8_t cmd_count = sizeof(query_cmds) / sizeof(AtCommandType);
+
+    // Send each query command and parse response
+    for (uint8_t i = 0; i < cmd_count; i++)
+    {
+        // Clear response buffer
+        xingjian_response_ptr = 0;
+        memset(xingjian_response_buffer, 0, sizeof(xingjian_response_buffer));
+
+        // Send query command (all are 0-parameter commands with =?)
+        Printf("Sending query: %d... ", query_cmds[i]);
+        if (at_send_cmd(query_cmds[i], -1, -1) != 0)
+        {
+            Printf("send failed\r\n");
+            continue;
+        }
+
+        // Wait for response and process
+        delay_ms(200);  // Adjust delay based on module response speed
+        count = 0;
+        while(1)
+        {
+            //星间模块
+            if (ptr3 >= 1)
+            {
+                Printf("ptr3 recv data! len=%d\r\n", ptr3);
+                for (int i = 0; i < ptr3; i++)
+                    Printf(" 0x%x", data3[i]);
+                Printf("\r\n");
+                //保存数据到响应缓冲区
+                memcpy(xingjian_response_buffer, data3, ptr3);
+                ptr3 = 0;
+                break;
+            }
+            delay_ms(20);
+            if(count++ >= 0xa0)
+            {
+                Printf("not recv xingjian yaoce\r\n", ptr3);
+                break;
+            }
+        }
+        
+        // Parse response and fill struct
+        parse_config_response(config, (char *)xingjian_response_buffer, query_cmds[i]);
+        Printf("parsed\r\n");
+    }
+
+    // Restore UART and complete
+    //currentXingjianUart = prevUart;
+    Printf("===== Module %d config query finished =====\r\n", xingjianNum);
+    return 0;
+}
+
+
+
+//======================金鹏代码===============================================
 // 分片透传封装函数
-static int try_transparent_send()
+ int try_transparent_send()
 {
     if (g_transparent_task.received_len == 0)
         return 0;
@@ -490,7 +710,7 @@ static int try_transparent_send()
  * @param data_len  CANFD每帧数据长度
  * @return 0:成功, 1:等待更多帧, -1:数据格式错误, -2:数据长度无效, -3:串口发送失败
  */
-int8_t forward_transparent_file_data(const uint8_t *file_data, uint16_t data_len)
+int8_t forward_transparent_file_data( uint8_t *file_data, uint16_t data_len)
 {
     if (file_data == NULL || data_len < 3)
     {

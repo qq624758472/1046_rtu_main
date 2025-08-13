@@ -130,10 +130,14 @@ extern int xingjian_change_config_mode(uint8_t xingjianNum, uint8_t mode);
  */
 extern int xingjian_reset(uint8_t xingjianNum);
 
+extern int xingjian_get_config(uint8_t xingjianNum, canfdInterstellarModuleConfig *config);
+
 // 星间模块透传数据协议解析与CANFD分帧发送函数声明
 extern void xj_transparent_data_parse_and_send(void);
 // 星间模块响应数据处理函数声明
 extern void xingjian_response_process(void);
+
+
 
 // 星间模块AT指令响应相关变量声明
 extern uint8_t xingjian_response_buffer[32];

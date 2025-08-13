@@ -290,7 +290,6 @@ void canfd_build_yaoce_pack()
     canfd_yc_all.ycData.large_electric_ctr = large_electric_status; // 大电流配电使能
     canfd_yc_all.ycData.small_electric_ctr = small_electric_status; // 小电流配电使能
     // 填充16路对外采集温度或电压模拟量
-
     for (int i = 0; i < 16; i++)
     {
         canfd_yc_all.ycData.out_adc_data[i] = ADCValue.outValue[i]; // 示例数据，替换为实际值
@@ -302,28 +301,28 @@ void canfd_build_yaoce_pack()
     }
 
     // 填充星间模块工作参数
-    canfd_yc_all.xjData.working_status = 0x01;     // 工作状态 1BYTE
-    canfd_yc_all.xjData.working_mode = 0x01;       // 工作模式 1BYTE
-    canfd_yc_all.xjData.module_address = 0x0200;   // 模块地址 2BYTE
-    canfd_yc_all.xjData.network_address = 0x03;    // 网络地址 1BYTE
-    canfd_yc_all.xjData.serial_baud_rate = 0x01;   // 串口波特率 1BYTE
-    canfd_yc_all.xjData.parity_bit = 0x02;         // 校验位 1BYTE
-    canfd_yc_all.xjData.airspeed_400mhz = 0x03;    // 400M空速(1.2K) 1BYTE
-    canfd_yc_all.xjData.airspeed_230mhz = 0x04;    // 230M空速(1.2K) 1BYTE
-    canfd_yc_all.xjData.channel = 0x05;            // 信道 1BYTE
-    canfd_yc_all.xjData.packet_length = 0x06;      // 封包长度 1BYTE
-    canfd_yc_all.xjData.wor_role = 0x07;           // WOR 角色 1BYTE
-    canfd_yc_all.xjData.wor_cycle = 0x08;          // WOR 周期 1BYTE
-    canfd_yc_all.xjData.tx_power = 0x09;           // 发射功率 1BYTE
-    canfd_yc_all.xjData.transmission_mode = 0x0A;  // 传输模式 1BYTE
-    canfd_yc_all.xjData.relay_mode = 0x0B;         // 中继模式 1BYTE
-    canfd_yc_all.xjData.listen_before_talk = 0x0C; // listen before talk 1BYTE
-    canfd_yc_all.xjData.env_rssi = 0x0D;           // 环境 RSSI 1BYTE
-    canfd_yc_all.xjData.data_rssi = 0x0E;          // 数据 RSSI 1BYTE
-    canfd_yc_all.xjData.encryption_key = 0x0F00;   // 密钥 2BYTE
-    canfd_yc_all.xjData.wor_sleep_delay = 0x1000;  // WOR 延时休眠 2BYTE
+    // canfd_yc_all.xjData.working_status = 0x01;     // 工作状态 1BYTE
+    // canfd_yc_all.xjData.working_mode = 0x01;       // 工作模式 1BYTE
+    // canfd_yc_all.xjData.module_address = 0x0200;   // 模块地址 2BYTE
+    // canfd_yc_all.xjData.network_address = 0x03;    // 网络地址 1BYTE
+    // canfd_yc_all.xjData.serial_baud_rate = 0x01;   // 串口波特率 1BYTE
+    // canfd_yc_all.xjData.parity_bit = 0x02;         // 校验位 1BYTE
+    // canfd_yc_all.xjData.airspeed_400mhz = 0x03;    // 400M空速(1.2K) 1BYTE
+    // canfd_yc_all.xjData.airspeed_230mhz = 0x04;    // 230M空速(1.2K) 1BYTE
+    // canfd_yc_all.xjData.channel = 0x05;            // 信道 1BYTE
+    // canfd_yc_all.xjData.packet_length = 0x06;      // 封包长度 1BYTE
+    // canfd_yc_all.xjData.wor_role = 0x07;           // WOR 角色 1BYTE
+    // canfd_yc_all.xjData.wor_cycle = 0x08;          // WOR 周期 1BYTE
+    // canfd_yc_all.xjData.tx_power = 0x09;           // 发射功率 1BYTE
+    // canfd_yc_all.xjData.transmission_mode = 0x0A;  // 传输模式 1BYTE
+    // canfd_yc_all.xjData.relay_mode = 0x0B;         // 中继模式 1BYTE
+    // canfd_yc_all.xjData.listen_before_talk = 0x0C; // listen before talk 1BYTE
+    // canfd_yc_all.xjData.env_rssi = 0x0D;           // 环境 RSSI 1BYTE
+    // canfd_yc_all.xjData.data_rssi = 0x0E;          // 数据 RSSI 1BYTE
+    // canfd_yc_all.xjData.encryption_key = 0x0F00;   // 密钥 2BYTE
+    // canfd_yc_all.xjData.wor_sleep_delay = 0x1000;  // WOR 延时休眠 2BYTE
 
-    canfd_yc_all.xj_pierce_DataLen = 0x0011; // 星间模块透穿数据大小 2BYTE
+    canfd_yc_all.xj_pierce_DataLen = 0x00; // 星间模块透穿数据大小 2BYTE
 
     // ===== 计算校验和 =====
     canfd_yc_all.checksum = 0;
@@ -337,7 +336,7 @@ void canfd_build_yaoce_pack()
     canfd_yc_all.xjData.module_address = swap_byte(0x0200);  // 模块地址 2BYTE
     canfd_yc_all.xjData.encryption_key = swap_byte(0x0F00);  // 密钥 2BYTE
     canfd_yc_all.xjData.wor_sleep_delay = swap_byte(0x1000); // WOR 延时休眠 2BYTE
-    canfd_yc_all.xj_pierce_DataLen = swap_byte(0x0011);      // 星间模块透穿数据大小 2BYTE
+    //canfd_yc_all.xj_pierce_DataLen = swap_byte(0x0011);      // 星间模块透穿数据大小 2BYTE
 }
 
 // 电机数据组包

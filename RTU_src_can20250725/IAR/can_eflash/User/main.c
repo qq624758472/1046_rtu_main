@@ -24,6 +24,7 @@ void Systemclock_Init();
 // 声明外部frame结构体，用于直接更新电机数据
 extern canfdDJ_all frame;
 extern canfdDJ_all_t frame_t;                // 电机遥测数据，直接转发数据不进行单个赋值
+extern canfdYC_all canfd_yc_all;         // 遥测数据
 // 测试电机数据包接收功能
 void test_motor_packet_receive(void);
 
@@ -658,6 +659,7 @@ void main()
         CANFD_RecoverFromBusOff(CANFD1);
 
 #if 1
+        //定时循环执行一次的程序放到这里
         if (clock_adc_get++ > 100)
         {
 #if 1
@@ -665,10 +667,18 @@ void main()
             PrintAllADCValues();
 #endif
 
+#if 1
+            //温度采集
             Read_Temperature();
             clock_adc_get = 0;
             delay_ms(200);
             Printf("Read_Temperature complay!\r\n");
+#endif
+
+#if 1
+            //星间模块当前状态获取
+            xingjian_get_config(1,&canfd_yc_all.xjData); // 获取星间模块的配置参数
+#endif
         }
 #endif
 #if 1
@@ -694,6 +704,18 @@ void main()
             Printf("-------->\r\n");
             ptr1 = 0;
         }
+        // //星间模块
+        // if (ptr3 >= 1)
+        // {
+        //     receive_flag = 0;
+        //     Printf("ptr3 recv data! len=%d\r\n", ptr3);
+        //     for (int i = 0; i < ptr3; i++)
+        //         Printf(" 0x%x", data3[i]);
+        //     Printf("-------->\r\n");
+        //     dj_uart_cmd_yc_return(data3, ptr3);
+
+        //     ptr3 = 0;
+        // }
 #endif
     }
 }
