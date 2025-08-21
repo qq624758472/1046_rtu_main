@@ -3,7 +3,7 @@
 #include "myprintf.h"
 #include <string.h>
 #include <stdlib.h>
-
+extern void std_feed_dog();
 // 包头定义
 #define PACKET_HEADER_1 0xEB
 #define PACKET_HEADER_2 0x90

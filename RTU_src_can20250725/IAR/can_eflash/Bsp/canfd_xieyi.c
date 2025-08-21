@@ -13,7 +13,7 @@
 #include "uart_dianji.h"
 #include "print.h"
 #include "onewire.h"
-
+extern void std_feed_dog();
 // 对外8路gpio控制保存的当前状态
 extern uint8_t out_gpio_status;
 // 大电流配电使能
@@ -23,22 +23,36 @@ extern uint16_t small_electric_status;
 // 电源输出使能控制
 extern uint8_t power_gpio_status;
 
-extern getADCValue ADCValue; // 获取到的所有ADC值的缓存
-
 extern uint8_t canfd_sel;
 extern uint8_t canfd_M_sel;
+// 串口3
+extern uint8_t data3[1024];
+extern uint32_t ptr3;
 
-canfdYC_all canfd_yc_all;         // 遥测数据
-canfdDJ_all frame;                // 遥测数据
+extern USART_TypeDef *currentXingjianUart; // 当前使用的星间模块串口
+
+canfdYC_all canfd_yc_all;             // 遥测数据
+canfdDJ_all frame;                    // 遥测数据
 canfdDJ_all_t frame_t;                // 电机遥测数据，直接转发数据不进行单个赋值
-FiveWireTelemetryFrame wireframe; // 遥测数据
+FiveWireTelemetryFrame wireframe;     // 遥测数据
+canfdInterstellarModuleConfig xjData; // 星间模块遥测数据
+extern getADCValue ADCValue;          // 获取到的所有ADC值的缓存
+extern uint8_t can0Ptr;
+extern uint8_t can1Ptr;
+extern CANFD_RXInfoTypeDef can0Info[16];
+extern CANFD_RXInfoTypeDef can1Info[16];
+
+extern uint8_t curCan0Ptr;
+extern uint8_t curCan1Ptr;
+// 星间模块 工作模式
+uint8_t xj_work_mode = 0;
 
 volatile static uint8_t rqu_id;
 volatile static uint8_t current_count_id0 = 0;
 volatile static uint8_t current_count_id1 = 0;
 
-extern uint8_t Receive_data1[64];
-extern uint8_t Receive_data0[64];
+// extern uint8_t Receive_data1[64];
+// extern uint8_t Receive_data0[64];
 
 /*
 volatile static  uint8_t A_CAN_YC_count1 = 1;      // A通道遥测请求计数
@@ -257,7 +271,7 @@ void CANFD1_Frame_rev(uint8_t frame_type, uint8_t frame_count)
 // 遥测数据组包
 void canfd_build_yaoce_pack()
 {
-    memset(&canfd_yc_all, 0, sizeof(canfd_yc_all)); // 初始化遥测数据结构体
+    // memset(&canfd_yc_all, 0, sizeof(canfd_yc_all)); // 初始化遥测数据结构体
 
     // 填充固定头字段
     canfd_yc_all.head.dataLength = swap_byte(sizeof(canfd_yc_all) - sizeof(canfd_yc_all.head.dataType) * 2); // 数据长度
@@ -292,13 +306,16 @@ void canfd_build_yaoce_pack()
     // 填充16路对外采集温度或电压模拟量
     for (int i = 0; i < 16; i++)
     {
-        canfd_yc_all.ycData.out_adc_data[i] = ADCValue.outValue[i]; // 示例数据，替换为实际值
+        canfd_yc_all.ycData.out_adc_data[i] = ADCValue.outValue[i];
     }
     // 4路对内温度或电压模拟量
     for (int i = 0; i < 4; i++)
     {
-        canfd_yc_all.ycData.in_adc[i] = ADCValue.inValue[i]; // 示例数据，替换为实际值
+        canfd_yc_all.ycData.in_adc[i] = ADCValue.inValue[i];
     }
+
+    memcpy(canfd_yc_all.ycData.small_power_peidian_adc, ADCValue.small_power_peidian_adc, 64);
+    memcpy(canfd_yc_all.ycData.large_power_peidian_adc, ADCValue.large_power_peidian_adc, 8);
 
     // 填充星间模块工作参数
     // canfd_yc_all.xjData.working_status = 0x01;     // 工作状态 1BYTE
@@ -333,10 +350,10 @@ void canfd_build_yaoce_pack()
     {
         canfd_yc_all.checksum += data_ptr[i];
     }
-    canfd_yc_all.xjData.module_address = swap_byte(0x0200);  // 模块地址 2BYTE
-    canfd_yc_all.xjData.encryption_key = swap_byte(0x0F00);  // 密钥 2BYTE
-    canfd_yc_all.xjData.wor_sleep_delay = swap_byte(0x1000); // WOR 延时休眠 2BYTE
-    //canfd_yc_all.xj_pierce_DataLen = swap_byte(0x0011);      // 星间模块透穿数据大小 2BYTE
+    // canfd_yc_all.xjData.module_address = swap_byte(0x0200);  // 模块地址 2BYTE
+    // canfd_yc_all.xjData.encryption_key = swap_byte(0x0F00);  // 密钥 2BYTE
+    // canfd_yc_all.xjData.wor_sleep_delay = swap_byte(0x1000); // WOR 延时休眠 2BYTE
+    //  canfd_yc_all.xj_pierce_DataLen = swap_byte(0x0011);      // 星间模块透穿数据大小 2BYTE
 }
 
 // 电机数据组包
@@ -467,12 +484,10 @@ void canfd_build_dianji_pack()
     frame.cmd_speed = swap_byte(frame.cmd_speed);               // D38-D39 指令速度\n
 }
 
-
-
 // 电机数据组包  直接转发的
 void canfd_build_dianji_pack_T()
 {
-    memset(&frame_t, 0, sizeof(frame_t)); // 初始化遥测数据结构体
+    // memset(&frame_t, 0, sizeof(frame_t)); // 初始化遥测数据结构体
 
     // ===== 1. 帧头数据 ===== [协议要求]
     // frame_t.preamble = 0xEB90;      // 固定包头\n ,
@@ -488,20 +503,20 @@ void canfd_build_dianji_pack_T()
 
     // ===== 2. 遥测数据区 =====
     // ---- 指令计数 ----
-    frame_t.req_count = 128;       // D0 遥测请求计数 128\n
-    frame_t.valid_cmd_count = 120; // D1 有效指令计数\n
-    frame_t.error_cmd_count = 8;   // D2 错误指令计数\n
-    frame_t.last_cmd_code = 0xC3;  // D3 最后执行指令码\n
-    frame_t.backup_count = 5;      // D4 备份数据接收次数\n
-    frame_t.sade_id = 0x55;        // D5 主份SADE（0x55:主份）\n
+    frame_t.req_count += 1;       // D0 遥测请求计数 128\n
+    frame_t.valid_cmd_count += 1; // D1 有效指令计数\n
+    frame_t.error_cmd_count = 0;  // D2 错误指令计数\n
+    // frame_t.last_cmd_code = 0xC3;  // D3 最后执行指令码\n
+    frame_t.backup_count = 0; // D4 备份数据接收次数\n
+    frame_t.sade_id = 0x55;   // D5 主份SADE（0x55:主份）\n
 
     // ===== 3. 电机遥测数据区 =====
-    
+
     // ===== 5. 校验和计算 =====
     frame_t.checksum = 0;                        // 先清零\n
     uint8_t *data_ptr = (uint8_t *)&frame_t + 7; // 从D0开始（跳过7字节帧头）\n
     for (int i = 0; i < 49; i++)
-    {                                  // D0-D48共49字节
+    {                                    // D0-D48共49字节
         frame_t.checksum += data_ptr[i]; // D49 累加和校验\n
     }
 }
@@ -518,8 +533,7 @@ void canfd_build_wire_pack()
     wireframe.data_length = swap_byte(0x007D); // 从字节3到127的总长度,7D
     // wireframe.data_length = swap_byte(sizeof(wireframe) - sizeof(wireframe.data_type)*4); // 数据长度
 
-
-    memcpy(wireframe.tempall,&tempAll,sizeof(tempAll)); // 复制温度数据  
+    memcpy(wireframe.tempall, &tempAll, sizeof(tempAll)); // 复制温度数据
 
     // ===== 计算校验和 =====
     wireframe.checksum = 0;
@@ -533,17 +547,27 @@ void canfd_build_wire_pack()
 }
 
 // 协议解析函数
-ParseStatus parse_can_message(const uint8_t *data, size_t data_length, CommandType *cmd_type, void **cmd_data)
+ParseStatus parse_can_message(uint8_t frameType, uint8_t *data, size_t data_length, CommandType *cmd_type, void **cmd_data)
 {
     if (data == NULL || cmd_type == NULL || cmd_data == NULL || data_length < 3)
     {
         Printf("parse_can_message arg error\r\n");
         return PARSE_ERROR_INSUFFICIENT_DATA;
     }
+    uint8_t cmd = 0;
 
-    // 提取指令类型
-    uint8_t cmd = data[1]; // 数据编号(D3)字段
-    *cmd_type = cmd;
+    if (frameType == 0x08) // 首帧
+    {
+        // 提取指令类型
+        cmd = data[3]; // 数据编号(D3)字段
+        *cmd_type = cmd;
+    }
+    else // 单帧
+    {
+        // 提取指令类型
+        cmd = data[1]; // 数据编号(D3)字段
+        *cmd_type = cmd;
+    }
 
     // 根据指令类型解析数据
     switch (*cmd_type)
@@ -551,6 +575,7 @@ ParseStatus parse_can_message(const uint8_t *data, size_t data_length, CommandTy
     case CMD_TELEMETRY_REQ:
     case CMD_5WIRE_TEMP_REQ:
     case CMD_INTERSTELLAR_RESET:
+    case CMD_INTERSTELLAR_RETURN: // 请求星间模块返回的数据
     case CMD_DIANJI_REQ:
         // 这些指令没有参数，只需验证长度   从数据类型到单字节校验和之前的所有数据长度
         if (data_length < 6)
@@ -560,7 +585,23 @@ ParseStatus parse_can_message(const uint8_t *data, size_t data_length, CommandTy
         }
         *cmd_data = NULL;
         break;
-
+    case CMD_XINGJIAN_HEX_CMD: // 一个参数的
+        if (data_length < 2)
+        { // 3字节头部 + 2字节数据
+            Printf("CMD_XINGJIAN_HEX_CMD error\r\n");
+            return PARSE_ERROR_INVALID_LENGTH;
+        }
+        {
+            uint8_t *ctrl = (uint8_t *)malloc(1);
+            if (ctrl == NULL)
+            {
+                Printf("malloc error\r\n");
+                return PARSE_ERROR_INSUFFICIENT_DATA;
+            }
+            *ctrl = data[2]; // 第1个数据字节
+            *cmd_data = ctrl;
+        }
+        break;
     case CMD_POWER_CONTROL:
     case CMD_GPIO_CONTROL:
     case CMD_HIGH_CURRENT_CONTROL:
@@ -622,7 +663,7 @@ ParseStatus parse_can_message(const uint8_t *data, size_t data_length, CommandTy
                 return PARSE_ERROR_INSUFFICIENT_DATA;
             }
             // 解析22字节配置数据
-            const uint8_t *p = &data[2];
+            uint8_t *p = &data[2];
             config->work_mode = p[0];
             config->module_addr = (p[1] << 8) | p[2];
             config->network_addr = p[3];
@@ -654,14 +695,28 @@ ParseStatus parse_can_message(const uint8_t *data, size_t data_length, CommandTy
             return PARSE_ERROR_INSUFFICIENT_DATA;
         }
         {
-            // 为数据分配内存并复制
-            uint8_t *transparent_data = (uint8_t *)malloc(data_length - 2);
-            if (transparent_data == NULL)
+            if (frameType == 0x08) // 复合首帧，中间帧直接转发
             {
-                return PARSE_ERROR_INSUFFICIENT_DATA;
+                // 为数据分配内存并复制
+                uint8_t *transparent_data = (uint8_t *)malloc(data_length - 4);
+                if (transparent_data == NULL)
+                {
+                    return PARSE_ERROR_INSUFFICIENT_DATA;
+                }
+                memcpy(transparent_data, &data[4], data_length - 4);
+                *cmd_data = transparent_data;
             }
-            memcpy(transparent_data, &data[2], data_length - 2);
-            *cmd_data = transparent_data;
+            else // 单帧
+            {
+                // 为数据分配内存并复制
+                uint8_t *transparent_data = (uint8_t *)malloc(data_length - 2);
+                if (transparent_data == NULL)
+                {
+                    return PARSE_ERROR_INSUFFICIENT_DATA;
+                }
+                memcpy(transparent_data, &data[2], data_length - 2);
+                *cmd_data = transparent_data;
+            }
         }
         break;
     case CMD_DIANJI_CTL: // 电机指令转发
@@ -738,27 +793,33 @@ uint8_t canfd_send_all_data(uint8_t *data, uint16_t data_length)
         {
             CANFD1_Frame_rev(0x08, current_count_id0); // 复合帧 ,首帧
             status1++;
+
+            memcpy(Send_data1, data, 64); // 复制前64字节
+            CANFD_Transmit(CANFD1, TB1, Send_data1, Byte_64);
+            data += 64;        // 移动数据指针
+            data_length -= 64; // 减少剩余数据长度
+            Send_data1[0] = 0;
         }
         else
         {
             status1++;
             CANFD1_Frame_rev(0x09, current_count_id0); // 复合帧 ,中间帧
+            Send_data1[0] += 1;                        // 首帧计数
+            memcpy(&Send_data1[1], data, 63);          // 复制前64字节
+            CANFD_Transmit(CANFD1, TB1, Send_data1, Byte_64);
+            data += 63;        // 移动数据指针
+            data_length -= 63; // 减少剩余数据长度
         }
-
-        memcpy(Send_data1, data, 64); // 复制前64字节
-        CANFD_Transmit(CANFD1, TB1, Send_data1, Byte_64);
-
-        data += 64;        // 移动数据指针
-        data_length -= 64; // 减少剩余数据长度
+        delay_ms(100);//不加延迟发送出去的数据不对。
         packet_number++;
     }
     // 发送剩余数据（小于64字节）
     if (data_length > 0)
     {
-
         actual_len = data_length;
         if (packet_number > 0) // 多包传输
         {
+            memset(Send_data1, 0, 64);
             Send_data1[0] = packet_number;             // 帧序号
             memcpy(&Send_data1[1], data, data_length); // 复制剩余数据，数据从1开始
             CANFD1_Frame_rev(0x9, current_count_id0);  // 复帧，尾帧 0x9
@@ -766,28 +827,71 @@ uint8_t canfd_send_all_data(uint8_t *data, uint16_t data_length)
         }
         else // 单包传输
         {
-            memcpy(&Send_data1, data, data_length);    // 无序号
+            memset(Send_data1, 0, 64);
+            memcpy(Send_data1, data, data_length);    // 无序号
             CANFD1_Frame_rev(0x07, current_count_id0); // 单帧，0x7
         }
+
+        CANFD_TXFrameTypeDef CANFD_TXFrameStruct;
 
         // 选择最接近的标准DLC
         uint8_t dlc;
         if (actual_len <= 8)
+        {
             dlc = Byte_8;
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_8B;
+        }
         else if (actual_len <= 12)
+        {
             dlc = Byte_12;
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_12B;
+        }
         else if (actual_len <= 16)
+        {
             dlc = Byte_16;
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_16B;
+        }
         else if (actual_len <= 20)
+        {
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_20B;
             dlc = Byte_20;
+        }
         else if (actual_len <= 24)
+        {
             dlc = Byte_24;
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_24B;
+        }
         else if (actual_len <= 32)
+        {
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_32B;
             dlc = Byte_32;
+        }
         else if (actual_len <= 48)
+        {
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_48B;
             dlc = Byte_48;
+        }
         else
+        {
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_64B;
             dlc = Byte_64; // 33-64字节
+        }
+
+        if (canfd_sel)
+        {
+            CANFD_TXFrameStruct.CANFD_TX_PROTOCOL = CANFD_BRS;
+        }
+        else
+        {
+            CANFD_TXFrameStruct.CANFD_TX_PROTOCOL = CANFD;
+        }
+        CANFD_TXFrameStruct.CANFD_TX_FORMAT = EXTENDED;
+        CANFD_TXFrameStruct.CANFD_TX_TYPE = DATA;
+        CANFD_TXFrameStruct.CANFD_Frame_ID = 0x147;
+        // CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_32B;
+        CANFD_FrameInit(CANFD1, TB0, &CANFD_TXFrameStruct);
+
+        // CANFD_FrameInit(CANFD0, TB0, &CANFD_TXFrameStruct);
 
         // 发送最后的数据包
         if (dlc == Byte_64)
@@ -910,18 +1014,25 @@ uint8_t canfd_send_all_data0(uint8_t *data, uint16_t data_length)
         {
             CANFD0_Frame_rev(0x08, current_count_id0); // 复合帧 ,首帧
             status++;
+
+            memcpy(Send_data0, data, 64); // 复制前64字节
+            CANFD_Transmit(CANFD0, TB1, Send_data0, Byte_64);
+            data += 64;        // 移动数据指针
+            data_length -= 64; // 减少剩余数据长度
+            Send_data0[0] = 0;
         }
         else
         {
             status++;
             CANFD0_Frame_rev(0x09, current_count_id0); // 复合帧 ,中间帧
+            Send_data0[0] += 1;
+            memcpy(&Send_data0[1], data, 63); // 复制前64字节
+            CANFD_Transmit(CANFD0, TB1, Send_data0, Byte_64);
+            data += 63;        // 移动数据指针
+            data_length -= 63; // 减少剩余数据长度
         }
 
-        memcpy(Send_data0, data, 64); // 复制前64字节
-        CANFD_Transmit(CANFD0, TB1, Send_data0, Byte_64);
-
-        data += 64;        // 移动数据指针
-        data_length -= 64; // 减少剩余数据长度
+        delay_ms(100);//不加延迟发送出去的数据不对。
         packet_number++;
         // Printf("CANFD_Transmit(CANFD0) 0. \r\n");
     }
@@ -931,6 +1042,7 @@ uint8_t canfd_send_all_data0(uint8_t *data, uint16_t data_length)
         actual_len = data_length;
         if (packet_number > 0) // 多包传输
         {
+            memset(Send_data0, 0, 64);
             Send_data0[0] = packet_number;             // 帧序号
             memcpy(&Send_data0[1], data, data_length); // 复制剩余数据，数据从1开始
             CANFD0_Frame_rev(0x9, current_count_id0);  // 复帧，尾帧 0x9
@@ -938,28 +1050,58 @@ uint8_t canfd_send_all_data0(uint8_t *data, uint16_t data_length)
         }
         else // 单包传输
         {
-            CANFD0_Frame_rev(0x07, current_count_id0); // 单帧，0x7
+            memset(Send_data0, 0, 64);
             memcpy(&Send_data0, data, data_length);    // 无序号
+            CANFD0_Frame_rev(0x07, current_count_id0); // 单帧，0x7
         }
-
+        CANFD_TXFrameTypeDef CANFD_TXFrameStruct;
         // 选择最接近的标准DLC
         uint8_t dlc;
         if (actual_len <= 8)
+        {
             dlc = Byte_8;
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_8B;
+        }
         else if (actual_len <= 12)
+        {
             dlc = Byte_12;
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_12B;
+        }
         else if (actual_len <= 16)
+        {
             dlc = Byte_16;
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_16B;
+        }
         else if (actual_len <= 20)
+        {
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_20B;
             dlc = Byte_20;
+        }
         else if (actual_len <= 24)
+        {
             dlc = Byte_24;
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_24B;
+        }
         else if (actual_len <= 32)
+        {
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_32B;
             dlc = Byte_32;
+        }
         else if (actual_len <= 48)
+        {
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_48B;
             dlc = Byte_48;
+        }
         else
+        {
+            CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_64B;
             dlc = Byte_64; // 33-64字节
+        }
+        CANFD_TXFrameStruct.CANFD_TX_FORMAT = EXTENDED;
+        CANFD_TXFrameStruct.CANFD_TX_TYPE = DATA;
+        CANFD_TXFrameStruct.CANFD_Frame_ID = 0x147;
+        // CANFD_TXFrameStruct.CANFD_TX_DLC = CANFD_DLC_32B;
+        CANFD_FrameInit(CANFD0, TB0, &CANFD_TXFrameStruct);
 
         // 发送最后的数据包
         if (dlc == Byte_64)
@@ -1051,6 +1193,23 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_MODE error.\r\n");
         return ret;
     }
+    xj_work_mode = config->work_mode;
+    if (config->work_mode == 0) // 透传模式
+    {
+        // 工作模式还和两个gpio有关系
+        xingjian_change_config_mode(0, 0);
+        xingjian_change_config_mode(1, 0);
+    }
+    else if (config->work_mode == 2) // 配置模式
+    {
+        // 工作模式还和两个gpio有关系
+        xingjian_change_config_mode(0, 3);
+        xingjian_change_config_mode(1, 3);
+    }
+    else // WOR模式
+    {
+    }
+
     delay_ms(50); // 等待星间模块处理指令
 
     // 2. 设置模块地址 (AT+ADDR=module_addr)
@@ -1061,6 +1220,7 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_ADDR error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 3. 设置网络ID (AT+NETID=network_addr)
     ret = at_send_cmd(AT_CMD_1PARAM_NETID, config->network_addr, -1);
@@ -1070,6 +1230,7 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_NETID error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 4. 设置串口波特率和校验位 (AT+UART=baud_rate,parity)
     ret = at_send_cmd(AT_CMD_2PARAM_UART, config->baud_rate, config->parity);
@@ -1079,6 +1240,7 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_2PARAM_UART error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 5. 设置400MHz频段空中速率 (AT+RATE=freq_400_speed)
     // 注：根据硬件实际频段选择对应参数，这里假设使用400MHz频段
@@ -1089,6 +1251,7 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_RATE error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 6. 设置信道 (AT+CHANNEL=channel)
     ret = at_send_cmd(AT_CMD_1PARAM_CHANNEL, config->channel, -1);
@@ -1098,6 +1261,7 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_CHANNEL error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 7. 设置封包长度 (AT+PACKET=packet_length)
     ret = at_send_cmd(AT_CMD_1PARAM_PACKET, config->packet_length, -1);
@@ -1107,6 +1271,7 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_PACKET error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 8. 设置WOR角色 (AT+WOR=wor_role)
     ret = at_send_cmd(AT_CMD_1PARAM_WOR, config->wor_role, -1);
@@ -1116,6 +1281,7 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_WOR error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 9. 设置发射功率 (AT+POWER=tx_power)
     ret = at_send_cmd(AT_CMD_1PARAM_POWER, config->tx_power, -1);
@@ -1125,6 +1291,7 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_POWER error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 10. 设置传输模式 (AT+TRANS=tx_mode)
     ret = at_send_cmd(AT_CMD_1PARAM_TRANS, config->tx_mode, -1);
@@ -1134,6 +1301,7 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_TRANS error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 11. 设置中继模式 (AT+ROUTER=relay_mode)
     ret = at_send_cmd(AT_CMD_1PARAM_ROUTER, config->relay_mode, -1);
@@ -1143,6 +1311,7 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_ROUTER error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 12. 设置LBT功能 (AT+LBT=lbt)
     ret = at_send_cmd(AT_CMD_1PARAM_LBT, config->lbt, -1);
@@ -1152,6 +1321,7 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_LBT error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 13. 设置环境噪声RSSI (AT+ERSSI=env_rssi)
     ret = at_send_cmd(AT_CMD_1PARAM_ERSSI, config->env_rssi, -1);
@@ -1161,6 +1331,7 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_ERSSI error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 14. 设置数据RSSI (AT+DRSSI=data_rssi)
     ret = at_send_cmd(AT_CMD_1PARAM_DRSSI, config->data_rssi, -1);
@@ -1170,6 +1341,7 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_DRSSI error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 15. 设置密钥 (AT+KEY=key)
     ret = at_send_cmd(AT_CMD_1PARAM_KEY, config->key, -1);
@@ -1179,6 +1351,7 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_KEY error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 16. 设置WOR延迟休眠时间 (AT+DELAY=wor_sleep_delay)
     ret = at_send_cmd(AT_CMD_1PARAM_DELAY, config->wor_sleep_delay, -1);
@@ -1188,9 +1361,11 @@ uint8_t interstellar_config_send(InterstellarConfig *config)
         Printf("cat_send_cmd: AT_CMD_1PARAM_DELAY error.\r\n");
         return ret;
     }
+    delay_ms(50); // 等待星间模块处理指令
 
     // 所有配置发送完成后，可选择发送重启指令使配置生效
     ret = at_send_cmd(AT_CMD_NONE_RESET, -1, -1);
+    delay_ms(50); // 等待星间模块处理指令
     return ret;
 }
 
@@ -1255,6 +1430,20 @@ uint8_t dj_uart_cmd_rqu()
     return 0; // 成功
 }
 
+// 提取帧类型（低4位有效）
+uint8_t extract_frame_type(uint32_t can_id)
+{
+    // 右移9位后，取低4位（0x0F）
+    return (uint8_t)((can_id >> 9) & 0x0F);
+}
+
+// 提取帧计数（低8位有效）
+uint8_t extract_frame_count(uint32_t can_id)
+{
+    // 直接取低8位（0xFF）
+    return (uint8_t)(can_id & 0xFF);
+}
+
 // CMD_TELEMETRY_REQ = 0x01,        // 遥测请求
 // CMD_5WIRE_TEMP_REQ = 0x02,       // 5路1-wire温度遥测采集请求
 // CMD_POWER_CONTROL = 0x03,        // 电源输出使能控制请求
@@ -1265,7 +1454,7 @@ uint8_t dj_uart_cmd_rqu()
 // CMD_INTERSTELLAR_RESET = 0x08,   // 星间模块复位
 // CMD_TRANSPARENT_DATA = 0x09      // 透传模式数据发送到星间模块
 
-uint8_t can_xieyi_test(uint8_t *cmd, uint16_t data_length)
+uint8_t can_xieyi_test(uint8_t *cmd, uint32_t data_length)
 {
     CommandType cmd_type;
     PowerControl *powerctrl = NULL;
@@ -1273,9 +1462,52 @@ uint8_t can_xieyi_test(uint8_t *cmd, uint16_t data_length)
     GPIOCtrl *largectrl = NULL;
     GPIOCtrl *lowctrl = NULL;
     void *cmd_data;
+    uint8_t frameType = 0;
+    uint8_t frameCount = 0;
     int ret = -1;
-    ParseStatus status = parse_can_message(Receive_data1, data_length, &cmd_type, &cmd_data);
+
+    // 先判断是否为复合帧
+    // 解析canInfo结构体，解析id，判断是否为复合帧，是复合帧的第几帧，
+    // 第一帧保存当前帧号并直接转发数据，后续帧先判断是否帧号是累加的再 直接转发数据。
+
+    frameType = extract_frame_type(can1Info[curCan1Ptr].CANFD_CurrentFrame_ID);
+    frameCount = extract_frame_count(can1Info[curCan1Ptr].CANFD_CurrentFrame_ID);
+
+    // 复合帧，0x08 首帧，
+    if (frameType == 0x08)
+    {
+    }
+    else if (frameType == 0x09) // 0x09中间帧
+    {
+        if (xj_work_mode == 2) // 配置模式
+        {
+        }
+        else if (xj_work_mode == 0) // 透传模式 数据量最大1024Byte，
+        {
+            uint8_t *tranXJdata = cmd + 1;
+
+            Printf("data_length=%d\r\n", data_length);
+            // 将数据直接发送到平台
+            obc_tran_data_xingjian(tranXJdata, data_length - 1);
+            for (int i = 0; i < 63; i++)
+            {
+                Printf(" 0x%x", tranXJdata[i]);
+            }
+            Printf("\r\n");
+            ret = 0;
+            return ret;
+        }
+        else // wor模式，暂未使用
+        {
+        }
+    }
+    else // 单帧
+    {
+    }
+
+    ParseStatus status = parse_can_message(frameType, cmd, data_length, &cmd_type, &cmd_data);
     unsigned char *data = (unsigned char *)cmd_data;
+
     // wj:打印cmd_data值，解析22字节配置数据
 #if 0
     Printf("cmd_data value is \r\n");
@@ -1338,6 +1570,34 @@ uint8_t can_xieyi_test(uint8_t *cmd, uint16_t data_length)
             lowctrl = (GPIOCtrl *)cmd_data;
             small_electric_gpio_ctr(lowctrl->channel, lowctrl->state);
             break;
+        case CMD_XINGJIAN_HEX_CMD: // 星间模块配置工作模式
+            A_CAN_ZQ_count1 = (A_CAN_ZQ_count1 == 0xff) ? 0 : A_CAN_ZQ_count1 + 1;
+            if (*data == 0) // 配置成透传模式
+            {
+                xj_work_mode = 0;
+                xingjian_change_config_mode(0, 0);
+                xingjian_change_config_mode(1, 0);
+            }
+            else if (*data == 2) // 配置成 配置模式
+            {
+                xj_work_mode = 2;
+                xingjian_change_config_mode(0, 3);
+                xingjian_change_config_mode(1, 3);
+            }
+            else
+            {
+            }
+            break;
+        case CMD_INTERSTELLAR_RETURN: // 请求星间模块的缓存数据
+            A_CAN_ZQ_count1 = (A_CAN_ZQ_count1 == 0xff) ? 0 : A_CAN_ZQ_count1 + 1;
+            if (ptr3 != 0)
+            {
+                xingjian_tran_data_obc(1, data3, ptr3);
+                ptr3 = 0;
+            }
+            else
+                Printf("xj module not data\r\n");
+            break;
         case CMD_INTERSTELLAR_CONFIG: // 星间模块配置指令
             A_CAN_ZQ_count1 = (A_CAN_ZQ_count1 == 0xff) ? 0 : A_CAN_ZQ_count1 + 1;
             cmd[0] = 0x35;
@@ -1358,11 +1618,30 @@ uint8_t can_xieyi_test(uint8_t *cmd, uint16_t data_length)
             cmd[0] = 0x35;
             // canfd_send_all_data(cmd,data_length);
             // Printf("can_xieyi_test:CMD_TRANSPARENT_DATA. \r\n");
+            if (xj_work_mode == 2) // 配置模式
+            {
+                obc_tran_data_xingjian(data, data_length - 2);
+            }
+            else if (xj_work_mode == 0) // 透传模式 数据量最大1024Byte，这块只能接到一个帧头
+            {
+                if (frameType == 0x08) // 复合帧首帧
+                {
+                    obc_tran_data_xingjian(data, data_length - 4);
+                }
+                else // 中间帧上边直接转发了，这快只能是单帧
+                {
+                    obc_tran_data_xingjian(data, data_length - 2);
+                }
+            }
+            else
+            {
+            }
 
             break;
         case CMD_DIANJI_CTL: // 电机控制指令转发
             A_CAN_ZQ_count1 = (A_CAN_ZQ_count1 == 0xff) ? 0 : A_CAN_ZQ_count1 + 1;
             // Printf("can_xieyi_test:CMD_DIANJI_CTL. \r\n");
+            frame_t.last_cmd_code = data[4];                // 用来保存最后一次电机的执行指令
             dj_uart_cmd_analyze(cmd_data, data_length - 2); // data_length是数据总长度，减去2个字节的头部就是实际数据长度
             break;
         case CMD_DIANJI_REQ: // 电机遥测请求
@@ -1370,7 +1649,7 @@ uint8_t can_xieyi_test(uint8_t *cmd, uint16_t data_length)
             // Printf("can_xieyi_test:CMD_DIANJI_REQ. \r\n");
             dj_uart_cmd_rqu();
             canfd_build_dianji_pack_T();
-            canfd_send_all_data((uint8_t *)&frame, sizeof(frame));
+            canfd_send_all_data((uint8_t *)&frame_t, sizeof(frame));
 
             break;
         default:
@@ -1384,7 +1663,7 @@ uint8_t can_xieyi_test(uint8_t *cmd, uint16_t data_length)
     }
     else
     {
-        Printf("cmd analyze error2 = %d\n", status);
+        Printf("cmd analyze error2 = %d\r\n", status);
         A_CAN_CW_count1 = (A_CAN_CW_count1 == 0xff) ? 0 : A_CAN_CW_count1 + 1;
     }
 
@@ -1399,7 +1678,44 @@ uint8_t can_xieyi_test0(uint8_t *cmd, uint16_t data_length)
     GPIOCtrl *lowctrl = NULL;
     void *cmd_data;
     int ret = -1;
-    ParseStatus status = parse_can_message(cmd, data_length, &cmd_type, &cmd_data);
+    uint8_t frameType = 0;
+    uint8_t frameCount = 0;
+
+    frameType = extract_frame_type(can0Info[curCan0Ptr].CANFD_CurrentFrame_ID);
+    frameCount = extract_frame_count(can0Info[curCan0Ptr].CANFD_CurrentFrame_ID);
+
+    // 复合帧，0x08 首帧，
+    if (frameType == 0x08)
+    {
+    }
+    else if (frameType == 0x09) // 0x09中间帧
+    {
+        if (xj_work_mode == 2) // 配置模式
+        {
+        }
+        else if (xj_work_mode == 0) // 透传模式 数据量最大1024Byte
+        {
+            uint8_t *tranXJdata = cmd + 1;
+            Printf("data_length=%d\r\n", data_length);
+            // 将数据直接发送到平台
+            obc_tran_data_xingjian(tranXJdata, data_length - 1);
+            for (int i = 0; i < 63; i++)
+            {
+                Printf(" 0x%x", tranXJdata[i]);
+            }
+            Printf("\r\n");
+            ret = 0;
+            return ret;
+        }
+        else // wor模式，暂未使用
+        {
+        }
+    }
+    else // 单帧
+    {
+    }
+
+    ParseStatus status = parse_can_message(frameType, cmd, data_length, &cmd_type, &cmd_data);
     unsigned char *data = (unsigned char *)cmd_data;
 
     // wj:打印cmd_data值，解析22字节配置数据
@@ -1461,6 +1777,16 @@ uint8_t can_xieyi_test0(uint8_t *cmd, uint16_t data_length)
             lowctrl = (GPIOCtrl *)cmd_data;
             small_electric_gpio_ctr(lowctrl->channel, lowctrl->state);
             break;
+        case CMD_INTERSTELLAR_RETURN: // 请求星间模块的缓存数据
+            B_CAN_ZQ_count0 = (B_CAN_ZQ_count0 == 0xff) ? 0 : B_CAN_ZQ_count0 + 1;
+            if (ptr3 != 0)
+            {
+                xingjian_tran_data_obc(0, data3, ptr3);
+                ptr3 = 0;
+            }
+            else
+                Printf("xj module not data\r\n");
+            break;
         case CMD_INTERSTELLAR_CONFIG: // 星间模块配置指令
             B_CAN_ZQ_count0 = (B_CAN_ZQ_count0 == 0xff) ? 0 : B_CAN_ZQ_count0 + 1;
             cmd[0] = 0x35;
@@ -1468,6 +1794,23 @@ uint8_t can_xieyi_test0(uint8_t *cmd, uint16_t data_length)
             // Printf("can_xieyi_test:CMD_INTERSTELLAR_CONFIG. \r\n");
             InterstellarConfig *config = (InterstellarConfig *)cmd_data;
             interstellar_config_send(config);
+            break;
+        case CMD_XINGJIAN_HEX_CMD: // 配置工作模式
+            if (*data == 0)        // 配置成透传模式
+            {
+                xj_work_mode = 0;
+                xingjian_change_config_mode(0, 0);
+                xingjian_change_config_mode(1, 0);
+            }
+            else if (*data == 2) // 配置成 配置模式
+            {
+                xj_work_mode = 2;
+                xingjian_change_config_mode(0, 3);
+                xingjian_change_config_mode(1, 3);
+            }
+            else
+            {
+            }
             break;
         case CMD_INTERSTELLAR_RESET: // 星间模块复位
             B_CAN_ZQ_count0 = (B_CAN_ZQ_count0 == 0xff) ? 0 : B_CAN_ZQ_count0 + 1;
@@ -1481,13 +1824,31 @@ uint8_t can_xieyi_test0(uint8_t *cmd, uint16_t data_length)
             cmd[0] = 0x35;
             // canfd_send_all_data0(cmd,data_length);
             // Printf("can_xieyi_test:CMD_TRANSPARENT_DATA. \r\n");
-
+            if (xj_work_mode == 2) // 配置成配置模式
+            {
+                obc_tran_data_xingjian(data, data_length - 2);
+            }
+            else if (xj_work_mode == 0) // 透传模式 数据量最大1024Byte，这块只能是第一帧
+            {
+                if (frameType == 0x08) // 复合帧首帧
+                {
+                    obc_tran_data_xingjian(data, data_length - 4);
+                }
+                else // 中间帧上边直接转发了，这快只能是单帧
+                {
+                    obc_tran_data_xingjian(data, data_length - 2);
+                }
+            }
+            else
+            {
+            }
             break;
         case CMD_DIANJI_CTL: // 电机控制指令转发
             B_CAN_ZQ_count0 = (B_CAN_ZQ_count0 == 0xff) ? 0 : B_CAN_ZQ_count0 + 1;
             cmd[0] = 0x35;
             // canfd_send_all_data0(cmd,data_length);
             // Printf("can_xieyi_test:CMD_DIANJI_CTL. \r\n");
+            frame_t.last_cmd_code = data[4];                // 用来保存最后一次电机的执行指令
             dj_uart_cmd_analyze(cmd_data, data_length - 2); // data_length是数据总长度，减去2个字节的头部就是实际数据长度
             break;
         case CMD_DIANJI_REQ: // 电机遥测请求
@@ -1495,7 +1856,7 @@ uint8_t can_xieyi_test0(uint8_t *cmd, uint16_t data_length)
             // Printf("can_xieyi_test:CMD_DIANJI_REQ. \r\n");
             dj_uart_cmd_rqu();
             canfd_build_dianji_pack_T();
-            canfd_send_all_data0((uint8_t *)&frame, sizeof(frame));
+            canfd_send_all_data0((uint8_t *)&frame_t, sizeof(frame));
 
             break;
         default:

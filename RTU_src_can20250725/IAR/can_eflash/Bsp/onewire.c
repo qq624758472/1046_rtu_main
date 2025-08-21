@@ -36,7 +36,7 @@ union ROM_CHANGE_OW rom_change_ow;
 onewire_t stOneWire = {0};
 
 ds2482_temp_info tempAll;
-
+extern void std_feed_dog();
 static int8_t DS2482_set_rom(uint8_t DS2482num, uint8_t channel, uint8_t num, uint8_t *pROM);
 static int8_t DS2482_get_rom(uint8_t DS2482num, uint8_t channel, uint8_t num, uint8_t *pROM);
 static int8_t DS2482_set_addr(uint8_t addr);
@@ -150,7 +150,7 @@ static int8_t DS2482_get_rom(uint8_t DS2482num, uint8_t channel, uint8_t num, ui
             }
         }
     }
-
+    std_feed_dog();
     return ret;
 }
 
@@ -498,6 +498,7 @@ void Read_Temperature(void)
             channel = 0xff;
             emOneWireOpt = ONEWIRE_CHSL;
         }
+        std_feed_dog();
         break;
     }
     case ONEWIRE_READTEMP: // 读取温度
@@ -518,6 +519,7 @@ void Read_Temperature(void)
                     rom_change_ow.rom_s_ow[i] = ROM_NO[i];
                     delay_ms(2);
                 }
+                std_feed_dog();
                 OWWriteByte(Read_Temp); // 读取温度
                 delay_ms(2);
                 temp2[0] = OWReadByte(); // 写命令
@@ -528,6 +530,7 @@ void Read_Temperature(void)
                 Printf("DS2482num=%d, channel=%d, Temp=0x%x\r\n",DS2482num,channel, Temp);
                 // OwMatchGccs(Temp, rom_change_ow.rom_b_ow, rom_change_zd.rom_b_zd); //lsh 匹配温度值与对应工参位置
                 OWReset(); // 1-wire总线重置
+                std_feed_dog();
             }
         }
         emOneWireOpt = ONEWIRE_CHSL;
@@ -542,6 +545,7 @@ void Read_Temperature(void)
         // }
         delay_ms(1000);
         emOneWireOpt = ONEWIRE_READTEMP;
+        std_feed_dog();
         break;
     }
     case ONEWIRE_CHSL: // 通道选择
@@ -570,6 +574,7 @@ void Read_Temperature(void)
                     Printf("DS2482_channel_select channel=%d success\r\n",channel);
                     break;
                 }
+                std_feed_dog();
             }
             Printf("OWReset =====>0\r\n");
             OWReset();
@@ -579,6 +584,7 @@ void Read_Temperature(void)
             // cpu_time = Get_cpu_Time(); // 记录当前时间
             emOneWireOpt = ONEWIRE_WAIT;
         }
+        std_feed_dog();
         break;
     }
     default:
@@ -659,7 +665,7 @@ static int OWSearch(void)
             Printf("OWReset error2 \r\n");
             return FALSE;
         }
-
+        std_feed_dog();
         // issue the search command
         OWWriteByte(Search_Rom);
 
@@ -691,7 +697,7 @@ static int OWSearch(void)
                     search_direction = 0;
                 }
             }
-
+            std_feed_dog();
             // Perform a triple operation on the DS2482 which will perform
             // 2 read bits and 1 write bit
             status = DS2482_search_triplet(search_direction);
@@ -744,6 +750,7 @@ static int OWSearch(void)
                     rom_byte_mask = 1;
                 }
             }
+            std_feed_dog();
         } while (rom_byte_number < 8); // loop until through all ROM bytes 0-7
 
         // if the search was successful then
@@ -861,7 +868,7 @@ void OWGetRom(void)
         {
             DS2482_set_addr(DS2482_2);
         }
-
+        std_feed_dog();
         for (Cir = 0; Cir < 5; Cir++)
         {
             if (TRUE == DS2482_detect()) // 进行DS2482选择，直到成功。总设置配置失败，单步调试可以，  DS2428 检测例程，该例程设置12C地址，然后执行设备复位，最后将配置字节写入默认值
@@ -877,6 +884,7 @@ void OWGetRom(void)
         {
             for (Cir = 0; Cir < 5; Cir++)
             {
+                std_feed_dog();
                 if (!DS2482_channel_select(channel))
                 {
                     Printf("channel select success, channel=%d\r\n",(int)channel);

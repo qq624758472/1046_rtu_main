@@ -4,7 +4,7 @@
  * @Autor: ruog__
  * @Date: 2025-07-17 13:49:15
  * @LastEditors: ruog__
- * @LastEditTime: 2025-05-02 12:23:02
+ * @LastEditTime: 2025-05-04 06:06:32
  */
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef LED_H
@@ -55,7 +55,7 @@ extern uint8_t out_gpio_ctr(uint8_t chan, uint8_t ctr);
  * @ctr  0:1
  *
  */
-uint8_t large_electric_gpio_ctr(uint8_t chan, uint8_t ctr);
+extern uint8_t large_electric_gpio_ctr(uint8_t chan, uint8_t ctr);
 
 
 /**
@@ -66,7 +66,7 @@ uint8_t large_electric_gpio_ctr(uint8_t chan, uint8_t ctr);
  *
  * @return 0=成功, -1=参数错误
  */
-uint8_t small_electric_gpio_ctr(uint8_t chan, uint8_t ctr);
+extern uint8_t small_electric_gpio_ctr(uint8_t chan, uint8_t ctr);
 
 
 /**
@@ -77,7 +77,9 @@ uint8_t small_electric_gpio_ctr(uint8_t chan, uint8_t ctr);
  * @ctr  0:1
  *
  */
-uint8_t power_gpio_ctr(uint8_t chan, uint8_t ctr);
+extern uint8_t power_gpio_ctr(uint8_t chan, uint8_t ctr);
+
+extern void std_feed_dog();
 
 #endif
 

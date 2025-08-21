@@ -4,14 +4,14 @@
  * @Autor: ruog__
  * @Date: 2025-07-17 13:49:15
  * @LastEditors: ruog__
- * @LastEditTime: 2025-04-30 12:50:53
+ * @LastEditTime: 2025-05-04 06:06:02
  */
 #include "as32x601.h"
 #include "as32x601_gpio.h"
 #include "as32x601_smu.h"
 #include "gpio.h"
 #include "myprintf.h"
-
+extern void std_feed_dog();
 uint8_t flag1_b15 = 0;
 uint8_t flag2_d10 = 0;
 uint8_t flag3_d11 = 0;
@@ -89,7 +89,7 @@ void User_GPIO_Init()
     GPIO_Init(GPIOF, &GPIO_InitStructureOut);
 
     GPIOG_CLK_ENABLE();
-    GPIO_InitStructureOut.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_8;
+    GPIO_InitStructureOut.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_8 |GPIO_Pin_11;//PG11是喂狗引脚，下降沿触发
     GPIO_Init(GPIOG, &GPIO_InitStructureOut);
 
     GPIO_InitStructureOut.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_6;
@@ -507,4 +507,12 @@ uint8_t power_gpio_ctr(uint8_t chan, uint8_t ctr)
     else
         power_gpio_status &= ~(1 << chan); // 设置指定通道为低电平
     return 0;
+}
+
+
+void std_feed_dog()
+{
+    GPIO_WriteBits(GPIOG, GPIO_Pin_11, 1);
+    delay_us(10);
+    GPIO_WriteBits(GPIOG, GPIO_Pin_11, 0);
 }

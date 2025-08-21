@@ -4,6 +4,11 @@
 #include <stdio.h>
 #include "print.h"
 #include "myprintf.h"
+#include "canfd_xieyi.h"
+extern void std_feed_dog();
+extern uint8_t canfd_send_all_data(uint8_t *data, uint16_t data_length);
+extern uint8_t canfd_send_all_data0(uint8_t *data, uint16_t data_length);
+
 // 发送遥测数据，这里直接传所有数据和总长度，这个函数进行分包发送
 extern uint8_t canfd_send_all_data(uint8_t *data, uint16_t data_length);
 // 星间模块AT指令响应接收缓冲区
@@ -12,29 +17,29 @@ uint8_t xingjian_response_ptr = 0;
 volatile uint8_t xingjian_config_ok_flag = 0;      // 星间模块配置成功标志位
 volatile uint8_t xingjian_mode_config_ok_flag = 0; // 星间模块工作模式配置成功标志位
 
-//当前串口使用的是 USART0,USART1,USART3,USART5
+// 当前串口使用的是 USART0,USART1,USART3,USART5
 USART_TypeDef *currentXingjianUart = USART1; // 当前使用的星间模块串口
 
 // 星间模块透传数据接收缓冲区和组包状态
 #define XJ_RX_BUFFER_SIZE 2048
- uint8_t xj_rx_buffer[XJ_RX_BUFFER_SIZE];
- uint16_t xj_rx_write_ptr = 0;
- uint16_t xj_rx_read_ptr = 0;
+uint8_t xj_rx_buffer[XJ_RX_BUFFER_SIZE];
+uint16_t xj_rx_write_ptr = 0;
+uint16_t xj_rx_read_ptr = 0;
 #define XJ_FILE_MAX_SIZE 8192
- uint8_t xj_file_buffer[XJ_FILE_MAX_SIZE];
- uint32_t xj_file_total_len = 0;
- uint32_t xj_file_received_len = 0;
- uint8_t xj_file_task_seq = 0xFF;
- uint8_t xj_file_data_type = 0;
- uint8_t xj_file_data_encoding = 0;
- uint8_t xj_file_receiving = 0; // 0:无任务 1:正在接收
+uint8_t xj_file_buffer[XJ_FILE_MAX_SIZE];
+uint32_t xj_file_total_len = 0;
+uint32_t xj_file_received_len = 0;
+uint8_t xj_file_task_seq = 0xFF;
+uint8_t xj_file_data_type = 0;
+uint8_t xj_file_data_encoding = 0;
+uint8_t xj_file_receiving = 0; // 0:无任务 1:正在接收
 
 // 任务缓存结构体
- TransparentFileTask g_transparent_task = {0};
+TransparentFileTask g_transparent_task = {0};
 // 全局任务状态变量
- uint32_t g_task_total_len = 0;    // 本次任务总长度（可能大于1024）
- uint32_t g_task_received_len = 0; // 已累计接收长度
- uint8_t g_task_seq = 0xFF;        // 当前任务序号（无效值0xFF）
+uint32_t g_task_total_len = 0;    // 本次任务总长度（可能大于1024）
+uint32_t g_task_received_len = 0; // 已累计接收长度
+uint8_t g_task_seq = 0xFF;        // 当前任务序号（无效值0xFF）
 
 // 串口0数据的接收， 当前测试电机遥测值的返回
 extern uint8_t data[64];
@@ -46,7 +51,7 @@ extern uint32_t ptr1;
 extern uint8_t data2[64];
 extern uint32_t ptr2;
 // 串口3
-extern uint8_t data3[64];
+extern uint8_t data3[1024];
 extern uint32_t ptr3;
 // 串口4
 extern uint8_t data4[64];
@@ -54,6 +59,246 @@ extern uint32_t ptr4;
 // 串口5
 extern uint8_t data5[64];
 extern uint32_t ptr5;
+#include <string.h>
+#include <string.h>
+
+// 功能：将格式为"AT+XXX=%d\r\n"的字符串写入at_buf
+// 参数：at_buf-目标缓冲区，buf_size-缓冲区大小，format-格式字符串(含%d)，param-整数参数
+// 返回值：写入的字符数（不包括终止符），失败返回-1
+int at_command_format(char *at_buf, size_t buf_size, const char *format, int param)
+{
+    if (at_buf == NULL || buf_size == 0 || format == NULL)
+    {
+        Printf("at_command_format arg error\r\n");
+        return -1;
+    }
+
+    int index = 0;
+    size_t format_len = strlen(format);
+    int has_percent_d = 0; // 标记是否包含%d
+
+    // 先检查格式字符串中是否包含%d
+    for (size_t i = 0; i < format_len - 1; i++)
+    {
+        if (format[i] == '%' && format[i + 1] == 'd')
+        {
+            has_percent_d = 1;
+            break;
+        }
+    }
+    if (!has_percent_d)
+    {
+        return -1; // 格式字符串必须包含%d
+    }
+
+    // 处理格式字符串，遇到%d时插入数字
+    for (size_t i = 0; i < format_len; i++)
+    {
+        // 检查缓冲区是否已满
+        if (index >= buf_size - 1)
+        { // 留一个位置给终止符
+            return -1;
+        }
+
+        // 遇到%d时处理数字参数
+        if (format[i] == '%' && i + 1 < format_len && format[i + 1] == 'd')
+        {
+            int temp[20]; // 存储数字的每一位（逆序）
+            int temp_len = 0;
+            int num = param;
+            int is_negative = 0;
+
+            if (num < 0)
+            {
+                is_negative = 1;
+                num = -num;
+
+                // 检查负号空间
+                if (index + 1 >= buf_size - 1)
+                {
+                    return -1;
+                }
+                at_buf[index++] = '-';
+            }
+
+            // 处理0的情况
+            if (num == 0)
+            {
+                if (index + 1 >= buf_size - 1)
+                {
+                    return -1;
+                }
+                at_buf[index++] = '0';
+            }
+            else
+            {
+                // 提取数字的每一位（逆序）
+                while (num > 0)
+                {
+                    temp[temp_len++] = num % 10;
+                    num /= 10;
+                }
+
+                // 检查数字部分空间
+                if (index + temp_len >= buf_size - 1)
+                {
+                    return -1;
+                }
+
+                // 逆序写入数字（恢复正确顺序）
+                for (int j = temp_len - 1; j >= 0; j--)
+                {
+                    at_buf[index++] = '0' + temp[j];
+                }
+            }
+
+            i++; // 跳过'd'
+        }
+        else
+        {
+            // 普通字符直接复制
+            at_buf[index++] = format[i];
+        }
+    }
+
+    // 添加终止符
+    at_buf[index] = '\0';
+
+    return index; // 返回写入的字符数（不包括终止符）
+}
+
+// 使用示例：
+// char at_buf[32];
+// int param = 5;
+// at_command_format(at_buf, sizeof(at_buf), "AT+MODE=%d\r\n", param);  // 生成AT+MODE=5\r\n
+// at_command_format(at_buf, sizeof(at_buf), "AT+ADDR=%d\r\n", 100);   // 生成AT+ADDR=100\r\n
+
+// 使用示例：
+// char at_buf[32];
+// int param = 3;
+// at_mode_format(at_buf, sizeof(at_buf), param);
+// 等价于 snprintf(at_buf, sizeof(at_buf), "AT+MODE=%d\r\n", param);
+
+// 功能：将格式为"AT+XXX=%d,%d\r\n"的字符串写入at_buf
+// 参数：at_buf-目标缓冲区，buf_size-缓冲区大小，format-格式字符串(含两个%d)，
+//       param1-第一个整数参数，param2-第二个整数参数
+// 返回值：写入的字符数（不包括终止符），失败返回-1
+int at_command_format2(char *at_buf, size_t buf_size, const char *format, int param1, int param2)
+{
+    if (at_buf == NULL || buf_size == 0 || format == NULL)
+    {
+        return -1;
+    }
+
+    int index = 0;
+    size_t format_len = strlen(format);
+    int percent_d_count = 0; // 统计%d出现的次数
+
+    // 检查格式字符串中是否包含两个%d
+    for (size_t i = 0; i < format_len - 1; i++)
+    {
+        if (format[i] == '%' && format[i + 1] == 'd')
+        {
+            percent_d_count++;
+            i++; // 跳过'd'，避免重复计数
+        }
+    }
+    if (percent_d_count != 2)
+    {
+        return -1; // 格式字符串必须包含两个%d
+    }
+
+    // 用于跟踪当前需要处理的参数
+    int current_param = param1;
+    int param_used = 0; // 标记第一个参数是否已使用
+
+    // 处理格式字符串，替换%d
+    for (size_t i = 0; i < format_len; i++)
+    {
+        // 检查缓冲区是否已满（预留终止符空间）
+        if (index >= buf_size - 1)
+        {
+            return -1;
+        }
+
+        // 遇到%d时处理参数
+        if (format[i] == '%' && i + 1 < format_len && format[i + 1] == 'd')
+        {
+            int temp[20]; // 存储数字的每一位（逆序）
+            int temp_len = 0;
+            int num = current_param;
+            int is_negative = 0;
+
+            if (num < 0)
+            {
+                is_negative = 1;
+                num = -num;
+
+                // 检查负号空间
+                if (index + 1 >= buf_size - 1)
+                {
+                    return -1;
+                }
+                at_buf[index++] = '-';
+            }
+
+            // 处理0的情况
+            if (num == 0)
+            {
+                if (index + 1 >= buf_size - 1)
+                {
+                    return -1;
+                }
+                at_buf[index++] = '0';
+            }
+            else
+            {
+                // 提取数字的每一位（逆序）
+                while (num > 0)
+                {
+                    temp[temp_len++] = num % 10;
+                    num /= 10;
+                }
+
+                // 检查数字部分空间
+                if (index + temp_len >= buf_size - 1)
+                {
+                    return -1;
+                }
+
+                // 逆序写入数字（恢复正确顺序）
+                for (int j = temp_len - 1; j >= 0; j--)
+                {
+                    at_buf[index++] = '0' + temp[j];
+                }
+            }
+
+            // 切换到第二个参数
+            if (!param_used)
+            {
+                param_used = 1;
+                current_param = param2;
+            }
+
+            i++; // 跳过'd'
+        }
+        else
+        {
+            // 普通字符直接复制
+            at_buf[index++] = format[i];
+        }
+    }
+
+    // 添加终止符
+    at_buf[index] = '\0';
+
+    return index; // 返回写入的字符数（不包括终止符）
+}
+
+// 使用示例：
+// char at_buf[64];
+// at_command_format(at_buf, sizeof(at_buf), "AT+UART=%d,%d\r\n", 115200, 8);
+// 生成: "AT+UART=115200,8\r\n"
 
 /**
  * @brief 发送无参数的AT指令
@@ -185,88 +430,93 @@ uint8_t at_send_1param(AtCommandType cmd, int param)
     switch (cmd)
     {
     case AT_CMD_1PARAM_RATE:
-        snprintf(at_buf, sizeof(at_buf), "AT+RATE=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+RATE=%d\r\n", param);
         // 设定空中速率：param为速率编码
         // 400MHz频段：0-2.4K, 3-4.8K, ..., 7-62.5K
         // 230MHz频段：0-3均为2.4K, 4-4.8K, ..., 7-15.6K
         break;
     case AT_CMD_1PARAM_PACKET:
-        snprintf(at_buf, sizeof(at_buf), "AT+PACKET=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+PACKET=%d\r\n", param);
         // 设定封包长度：param为长度编码
         // 0-240字节, 1-128字节, 2-64字节, 3-32字节
         break;
     case AT_CMD_1PARAM_WOR:
-        snprintf(at_buf, sizeof(at_buf), "AT+WOR=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+WOR=%d\r\n", param);
         // 设定WOR角色：param为角色类型
         // 0-接收, 1-发送
         break;
     case AT_CMD_1PARAM_POWER:
-        snprintf(at_buf, sizeof(at_buf), "AT+POWER=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+POWER=%d\r\n", param);
         // 设定发送功率：param为功率等级
         // 0-30dBm, 1-27dBm, 2-24dBm, 3-21dBm
         break;
     case AT_CMD_1PARAM_TRANS:
-        snprintf(at_buf, sizeof(at_buf), "AT+TRANS=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+TRANS=%d\r\n", param);
         // 设定发送模式：param为模式类型
         // 0-透明模式, 1-定点模式
         break;
     case AT_CMD_1PARAM_ROUTER:
-        snprintf(at_buf, sizeof(at_buf), "AT+ROUTER=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+ROUTER=%d\r\n", param);
         // 设定中继模式：param为开关状态
         // 0-关闭, 1-开启
         break;
     case AT_CMD_1PARAM_LBT:
-        snprintf(at_buf, sizeof(at_buf), "AT+LBT=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+LBT=%d\r\n", param);
         // 设定LBT功能开关：param为开关状态
         // 0-关闭, 1-开启（Listen Before Talk功能）
         break;
     case AT_CMD_1PARAM_ERSSI:
-        snprintf(at_buf, sizeof(at_buf), "AT+ERSSI=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+ERSSI=%d\r\n", param);
         // 设定环境噪声RSSI开关：param为开关状态
         // 0-关闭, 1-开启（环境噪声检测功能）
         break;
     case AT_CMD_1PARAM_DRSSI:
-        snprintf(at_buf, sizeof(at_buf), "AT+DRSSI=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+DRSSI=%d\r\n", param);
         // 设定接收数据RSSI开关：param为开关状态
         // 0-关闭, 1-开启（接收数据的RSSI值输出功能）
         break;
     case AT_CMD_1PARAM_ADDR:
-        snprintf(at_buf, sizeof(at_buf), "AT+ADDR=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+ADDR=%d\r\n", param);
         // 设定模块地址：param为地址值（0~65535，十进制）
         break;
     case AT_CMD_1PARAM_CHANNEL:
-        snprintf(at_buf, sizeof(at_buf), "AT+CHANNEL=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+CHANNEL=%d\r\n", param);
         // 设定工作信道：param为信道号（0~83，十进制，对应不同频率）
         break;
     case AT_CMD_1PARAM_NETID:
-        snprintf(at_buf, sizeof(at_buf), "AT+NETID=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+NETID=%d\r\n", param);
         // 设定网络ID：param为网络标识（0~255，十进制）
         break;
     case AT_CMD_1PARAM_KEY:
-        snprintf(at_buf, sizeof(at_buf), "AT+KEY=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+KEY=%d\r\n", param);
         // 设定模块密钥：param为密钥值（0~65535，十进制）
         break;
     case AT_CMD_1PARAM_DELAY:
-        snprintf(at_buf, sizeof(at_buf), "AT+DELAY=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+DELAY=%d\r\n", param);
         // 设定WOR延迟休眠时间：param为时间值（0~65535，单位ms）
         break;
     case AT_CMD_1PARAM_SWITCH:
-        snprintf(at_buf, sizeof(at_buf), "AT+SWITCH=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+SWITCH=%d\r\n", param);
         // 设定软件切换模式开关：param为开关状态
         // 0-关闭, 1-开启（允许软件切换模式）
         break;
     case AT_CMD_1PARAM_MODE:
-        snprintf(at_buf, sizeof(at_buf), "AT+MODE=%d\r\n", param);
+        at_command_format(at_buf, sizeof(at_buf), "AT+MODE=%d\r\n", param);
+
         // 切换工作模式：param为模式类型
         // 0-透传模式, 1-WOR模式, 2-配置模式
         break;
     default:
         return -1; // 无效指令
     }
-
-    
+    // 使用示例：
+    // char at_buf[32];
+    // int param = 5;
+    // at_command_format(at_buf, sizeof(at_buf), "AT+MODE=%d\r\n", param);  // 生成AT+MODE=5\r\n
+    // at_command_format(at_buf, sizeof(at_buf), "AT+ADDR=%d\r\n", 100);   // 生成AT+ADDR=100\r\n
     // 通过串口发送AT指令
     ret = uart_send_hex_datas(currentXingjianUart, (uint8_t *)at_buf, strlen(at_buf));
+    Printf("cmd==%s\r\n", at_buf);
     // 返回发送结果（0表示成功，-2表示串口发送失败）
     return (ret == 0) ? 0 : -2;
 }
@@ -287,7 +537,7 @@ uint8_t at_send_2param(AtCommandType cmd, int param1, int param2)
     switch (cmd)
     {
     case AT_CMD_2PARAM_UART:
-        snprintf(at_buf, sizeof(at_buf), "AT+UART=%d,%d\r\n", param1, param2);
+        at_command_format2(at_buf, sizeof(at_buf), "AT+UART=%d,%d\r\n", param1, param2);
         // 设定波特率和校验位：
         // param1为波特率编码（0-1200, 1-2400, ..., 7-115200）
         // param2为校验位编码（0-8N1, 1-8O1, 2-8E1, 3-8N1）
@@ -342,8 +592,6 @@ uint8_t at_send_cmd(AtCommandType cmd, int param1, int param2)
     }
 }
 
-
-
 /**
  * @brief 星间模块复位
  *
@@ -351,28 +599,28 @@ uint8_t at_send_cmd(AtCommandType cmd, int param1, int param2)
  */
 int xingjian_reset(uint8_t xingjianNum)
 {
-     uint8_t ret; 
+    uint8_t ret;
     if (xingjianNum == 0)
     {
-        currentXingjianUart = USART1; // 选择星间模块0对应的串口
+        currentXingjianUart = USART1;                 // 选择星间模块0对应的串口
         ret = at_send_cmd(AT_CMD_NONE_RESET, -1, -1); // 发送复位指令
         Printf("xingjian_reset: currentXingjianUart = USART1.\r\n");
         if (ret != 0)
         {
-          Printf("xingjian_reset: currentXingjianUart = USART1 error.\r\n");
-          return ret;
+            Printf("xingjian_reset: currentXingjianUart = USART1 error.\r\n");
+            return ret;
         }
     }
     else if (xingjianNum == 1)
     {
-        currentXingjianUart = USART3; // 选择星间模块1对应的串口
+        currentXingjianUart = USART3;                 // 选择星间模块1对应的串口
         ret = at_send_cmd(AT_CMD_NONE_RESET, -1, -1); // 发送复位指令
         Printf("xingjian_reset: currentXingjianUart = USART3.\r\n");
         if (ret != 0)
         {
-          Printf("xingjian_reset: currentXingjianUart = USART3 error.\r\n");
-          return ret;
-        }        
+            Printf("xingjian_reset: currentXingjianUart = USART3 error.\r\n");
+            return ret;
+        }
     }
     else
     {
@@ -380,8 +628,6 @@ int xingjian_reset(uint8_t xingjianNum)
         return -1; // 无效的星间模块编号
     }
 }
-
-
 
 /**
  * @brief 配置星间模块的工作模式, 两M1和M0 引脚进行拉低或者拉高来配置
@@ -459,7 +705,6 @@ int xingjian_change_config_mode(uint8_t xingjianNum, uint8_t mode)
     }
 }
 
-
 /**
  * @brief Parse AT command response and fill configuration struct
  * @param config Pointer to canfdInterstellarModuleConfig struct
@@ -468,7 +713,7 @@ int xingjian_change_config_mode(uint8_t xingjianNum, uint8_t mode)
  */
 void parse_config_response(canfdInterstellarModuleConfig *config, char *response, AtCommandType cmd)
 {
-    if (!config || !response) 
+    if (!config || !response)
     {
         Printf("parse_config_response arg error\r\n");
         return;
@@ -476,93 +721,92 @@ void parse_config_response(canfdInterstellarModuleConfig *config, char *response
     // Parse response based on command type
     switch (cmd)
     {
-        case AT_CMD_NONE_MODE_QUERY:
-            // Response format: "AT+MODE=0" (0-透传模式, 1-WOR模式, 2-配置模式)
-            config->mode = *response;  // 1字节数据
-            break;
+    case AT_CMD_NONE_MODE_QUERY:
+        // Response format: "AT+MODE=0" (0-透传模式, 1-WOR模式, 2-配置模式)
+        config->working_mode = *response; // 1字节数据
+        break;
 
-        case AT_CMD_NONE_ADDR_QUERY:
-            //对应AT+ADDR=?：查询当前模块地址，返回示例：AT+ADDR=1234
-            memcpy(&config->module_address, response, 2);  // 2字节数据
-            break;
+    case AT_CMD_NONE_ADDR_QUERY:
+        // 对应AT+ADDR=?：查询当前模块地址，返回示例：AT+ADDR=1234
+        memcpy(&config->module_address, response, 2); // 2字节数据
+        break;
 
-        case AT_CMD_NONE_NETID_QUERY:
-            // 对应AT+NETID=?：查询当前网络ID，返回示例：AT+NETID=2
-            config->network_address = *response;  // 1字节数据
-            break;
+    case AT_CMD_NONE_NETID_QUERY:
+        // 对应AT+NETID=?：查询当前网络ID，返回示例：AT+NETID=2
+        config->network_address = *response; // 1字节数据
+        break;
 
-        case AT_CMD_NONE_UART_QUERY:
-            // Response format: "AT+UART=3,0" (3=115200, 0=8N1)
-            config->serial_baud_rate = *response;        // 第一个1字节数据
-            config->parity_bit = *(response + 2);         // 跳过逗号，第二个1字节数据
-            break;
+    case AT_CMD_NONE_UART_QUERY:
+        // Response format: "AT+UART=3,0" (3=115200, 0=8N1)
+        config->serial_baud_rate = *response; // 第一个1字节数据
+        config->parity_bit = *(response + 2); // 跳过逗号，第二个1字节数据
+        break;
 
-        case AT_CMD_NONE_RATE_QUERY:
-            // Response format: "AT+RATE=7" (7=62.5K for 400MHz, 15.6K for 230MHz)
-            config->airspeed_400mhz = *response;  // 1字节数据
-            config->airspeed_230mhz = *response;  // 1字节数据（保持一致）
-            break;
+    case AT_CMD_NONE_RATE_QUERY:
+        // Response format: "AT+RATE=7" (7=62.5K for 400MHz, 15.6K for 230MHz)
+        config->airspeed_400mhz = *response; // 1字节数据
+        config->airspeed_230mhz = *response; // 1字节数据（保持一致）
+        break;
 
-        case AT_CMD_NONE_CHANNEL_QUERY:
-            // Response format: "AT+CHANNEL=23" (0~83)
-            config->channel = *response;  // 1字节数据
-            break;
+    case AT_CMD_NONE_CHANNEL_QUERY:
+        // Response format: "AT+CHANNEL=23" (0~83)
+        config->channel = *response; // 1字节数据
+        break;
 
-        case AT_CMD_NONE_PACKET_QUERY:
-            // Response format: "AT+PACKET=0" (0=240B, 1=128B, etc.)
-            config->packet_length = *response;  // 1字节数据
-            break;
+    case AT_CMD_NONE_PACKET_QUERY:
+        // Response format: "AT+PACKET=0" (0=240B, 1=128B, etc.)
+        config->packet_length = *response; // 1字节数据
+        break;
 
-        case AT_CMD_NONE_WOR_QUERY:
-            // Response format: "AT+WOR=0" (0=receive, 1=transmit)
-            config->wor_role = *response;  // 1字节数据
-            break;
+    case AT_CMD_NONE_WOR_QUERY:
+        // Response format: "AT+WOR=0" (0=receive, 1=transmit)
+        config->wor_role = *response; // 1字节数据
+        break;
 
-        case AT_CMD_NONE_POWER_QUERY:
-            // Response format: "AT+POWER=0" (0=30dBm, 1=27dBm, etc.)
-            config->tx_power = *response;  // 1字节数据
-            break;
+    case AT_CMD_NONE_POWER_QUERY:
+        // Response format: "AT+POWER=0" (0=30dBm, 1=27dBm, etc.)
+        config->tx_power = *response; // 1字节数据
+        break;
 
-        case AT_CMD_NONE_TRANS_QUERY:
-            // Response format: "AT+TRANS=1" (0=transparent, 1=fixed-point)
-            config->transmission_mode = *response;  // 1字节数据
-            break;
+    case AT_CMD_NONE_TRANS_QUERY:
+        // Response format: "AT+TRANS=1" (0=transparent, 1=fixed-point)
+        config->transmission_mode = *response; // 1字节数据
+        break;
 
-        case AT_CMD_NONE_ROUTER_QUERY:
-            // Response format: "AT+ROUTER=1" (0=disable, 1=enable)
-            config->relay_mode = *response;  // 1字节数据
-            break;
+    case AT_CMD_NONE_ROUTER_QUERY:
+        // Response format: "AT+ROUTER=1" (0=disable, 1=enable)
+        config->relay_mode = *response; // 1字节数据
+        break;
 
-        case AT_CMD_NONE_LBT_QUERY:
-            // Response format: "AT+LBT=1" (0=disable, 1=enable)
-            config->listen_before_talk = *response;  // 1字节数据
-            break;
+    case AT_CMD_NONE_LBT_QUERY:
+        // Response format: "AT+LBT=1" (0=disable, 1=enable)
+        config->listen_before_talk = *response; // 1字节数据
+        break;
 
-        case AT_CMD_NONE_ERSSI_QUERY:
-            // Response format: "AT+ERSSI=1" (0=disable, 1=enable)
-            config->env_rssi = *response;  // 1字节数据
-            break;
+    case AT_CMD_NONE_ERSSI_QUERY:
+        // Response format: "AT+ERSSI=1" (0=disable, 1=enable)
+        config->env_rssi = *response; // 1字节数据
+        break;
 
-        case AT_CMD_NONE_DRSSI_QUERY:
-            // Response format: "AT+DRSSI=1" (0=disable, 1=enable)
-            config->data_rssi = *response;  // 1字节数据
-            break;
+    case AT_CMD_NONE_DRSSI_QUERY:
+        // Response format: "AT+DRSSI=1" (0=disable, 1=enable)
+        config->data_rssi = *response; // 1字节数据
+        break;
 
-        case AT_CMD_NONE_KEY_QUERY:
-            // Response format: "AT+KEY=1234" (0~65535)
-            memcpy(&config->encryption_key, response, 2);  // 2字节数据
-            break;
+    case AT_CMD_NONE_KEY_QUERY:
+        // Response format: "AT+KEY=1234" (0~65535)
+        memcpy(&config->encryption_key, response, 2); // 2字节数据
+        break;
 
-        case AT_CMD_NONE_DELAY_QUERY:
-            // Response format: "AT+DELAY=1000" (0~65535 ms)
-            memcpy(&config->wor_sleep_delay, response, 2);  // 2字节数据
-            break;
+    case AT_CMD_NONE_DELAY_QUERY:
+        // Response format: "AT+DELAY=1000" (0~65535 ms)
+        memcpy(&config->wor_sleep_delay, response, 2); // 2字节数据
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 }
-
 
 /**
  * @brief Query module config via AT commands and fill into struct
@@ -581,8 +825,8 @@ int xingjian_get_config(uint8_t xingjianNum, canfdInterstellarModuleConfig *conf
     uint16_t count = 0;
 
     // Initialize struct to default values
-    memset(config, 0, sizeof(canfdInterstellarModuleConfig));
-    config->working_status = 1;  // Assume normal working status (customize as needed)
+    // memset(config, 0, sizeof(canfdInterstellarModuleConfig));
+    config->working_status = 1; // Assume normal working status (customize as needed)
 
     // Save current UART and switch to target module
     USART_TypeDef *prevUart = currentXingjianUart;
@@ -604,22 +848,22 @@ int xingjian_get_config(uint8_t xingjianNum, canfdInterstellarModuleConfig *conf
 
     // Define query commands and their types (all =?结尾的查询指令)
     AtCommandType query_cmds[] = {
-        AT_CMD_NONE_MODE_QUERY,       // 工作模式
-        AT_CMD_NONE_ADDR_QUERY,       // 模块地址
-        AT_CMD_NONE_NETID_QUERY,      // 网络地址
-        AT_CMD_NONE_UART_QUERY,       // 串口波特率+校验位
-        AT_CMD_NONE_RATE_QUERY,       // 空速
-        AT_CMD_NONE_CHANNEL_QUERY,    // 信道
-        AT_CMD_NONE_PACKET_QUERY,     // 封包长度
-        AT_CMD_NONE_WOR_QUERY,        // WOR角色
-        AT_CMD_NONE_POWER_QUERY,      // 发射功率
-        AT_CMD_NONE_TRANS_QUERY,      // 传输模式
-        AT_CMD_NONE_ROUTER_QUERY,     // 中继模式
-        AT_CMD_NONE_LBT_QUERY,        // LBT功能
-        AT_CMD_NONE_ERSSI_QUERY,      // 环境RSSI
-        AT_CMD_NONE_DRSSI_QUERY,      // 数据RSSI
-        AT_CMD_NONE_KEY_QUERY,        // 加密密钥
-        AT_CMD_NONE_DELAY_QUERY       // WOR休眠延迟
+        AT_CMD_NONE_MODE_QUERY,    // 工作模式
+        AT_CMD_NONE_ADDR_QUERY,    // 模块地址
+        AT_CMD_NONE_NETID_QUERY,   // 网络地址
+        AT_CMD_NONE_UART_QUERY,    // 串口波特率+校验位
+        AT_CMD_NONE_RATE_QUERY,    // 空速
+        AT_CMD_NONE_CHANNEL_QUERY, // 信道
+        AT_CMD_NONE_PACKET_QUERY,  // 封包长度
+        AT_CMD_NONE_WOR_QUERY,     // WOR角色
+        AT_CMD_NONE_POWER_QUERY,   // 发射功率
+        AT_CMD_NONE_TRANS_QUERY,   // 传输模式
+        AT_CMD_NONE_ROUTER_QUERY,  // 中继模式
+        AT_CMD_NONE_LBT_QUERY,     // LBT功能
+        AT_CMD_NONE_ERSSI_QUERY,   // 环境RSSI
+        AT_CMD_NONE_DRSSI_QUERY,   // 数据RSSI
+        AT_CMD_NONE_KEY_QUERY,     // 加密密钥
+        AT_CMD_NONE_DELAY_QUERY    // WOR休眠延迟
     };
     uint8_t cmd_count = sizeof(query_cmds) / sizeof(AtCommandType);
 
@@ -639,46 +883,83 @@ int xingjian_get_config(uint8_t xingjianNum, canfdInterstellarModuleConfig *conf
         }
 
         // Wait for response and process
-        delay_ms(200);  // Adjust delay based on module response speed
+        delay_ms(200); // Adjust delay based on module response speed
         count = 0;
-        while(1)
+        while (1)
         {
-            //星间模块
+            // 星间模块
             if (ptr3 >= 1)
             {
                 Printf("ptr3 recv data! len=%d\r\n", ptr3);
                 for (int i = 0; i < ptr3; i++)
                     Printf(" 0x%x", data3[i]);
                 Printf("\r\n");
-                //保存数据到响应缓冲区
+                // 保存数据到响应缓冲区
                 memcpy(xingjian_response_buffer, data3, ptr3);
                 ptr3 = 0;
                 break;
             }
             delay_ms(20);
-            if(count++ >= 0xa0)
+            if (count++ >= 0xa0)
             {
                 Printf("not recv xingjian yaoce\r\n", ptr3);
                 break;
             }
         }
-        
+
         // Parse response and fill struct
         parse_config_response(config, (char *)xingjian_response_buffer, query_cmds[i]);
         Printf("parsed\r\n");
     }
 
     // Restore UART and complete
-    //currentXingjianUart = prevUart;
+    // currentXingjianUart = prevUart;
     Printf("===== Module %d config query finished =====\r\n", xingjianNum);
     return 0;
 }
 
+// 透传 将数据转发到星间模块
+uint8_t obc_tran_data_xingjian(uint8_t *data, uint16_t dataLen)
+{
+    uint8_t ret = uart_send_hex_datas(currentXingjianUart, data, dataLen);
+    return ret;
+}
 
+// 透传 将数据转发到OBC
+uint8_t xingjian_tran_data_obc(uint8_t canChan, uint8_t *data, uint16_t dataLen)
+{
+    uint8_t *tmp = (uint8_t *)malloc(dataLen + 4);
+    // memset(tmp,0,dataLen);
+    
+    uint16_t *p = (uint16_t *)&tmp[0];
+    tmp[2] = 0x35;
+    tmp[3] = 0x0a;
+    if(dataLen > 62) //就是复合帧
+    {
+        *p = dataLen;
+        memcpy(&tmp[4], data, dataLen);
+        dataLen += 4;
+    }
+    else
+    {
+        memcpy(&tmp[2], data, dataLen);
+        dataLen += 2;
+    }
+
+    uint8_t ret = 0;
+    
+    if (canChan == 0)
+        ret = canfd_send_all_data0(tmp, dataLen);
+    else
+        ret = canfd_send_all_data(tmp, dataLen );
+
+    free(tmp);
+    return ret;
+}
 
 //======================金鹏代码===============================================
 // 分片透传封装函数
- int try_transparent_send()
+int try_transparent_send()
 {
     if (g_transparent_task.received_len == 0)
         return 0;
@@ -710,7 +991,7 @@ int xingjian_get_config(uint8_t xingjianNum, canfdInterstellarModuleConfig *conf
  * @param data_len  CANFD每帧数据长度
  * @return 0:成功, 1:等待更多帧, -1:数据格式错误, -2:数据长度无效, -3:串口发送失败
  */
-int8_t forward_transparent_file_data( uint8_t *file_data, uint16_t data_len)
+int8_t forward_transparent_file_data(uint8_t *file_data, uint16_t data_len)
 {
     if (file_data == NULL || data_len < 3)
     {

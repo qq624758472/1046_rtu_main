@@ -4,7 +4,7 @@
  * @Autor: ruog__
  * @Date: 2025-07-23 16:26:18
  * @LastEditors: ruog__
- * @LastEditTime: 2025-05-04 12:40:40
+ * @LastEditTime: 2025-04-30 17:27:48
  */
 #include "main.h"
 #include "print.h"
@@ -18,13 +18,21 @@
 #include "uart_dianji.h"
 #include "uart_xingjian.h"
 #include "onewire.h"
+#include "as32x601_canfd.h"
 /* Private typedef -----------------------------------------------------------*/
 
 void Systemclock_Init();
 // 声明外部frame结构体，用于直接更新电机数据
 extern canfdDJ_all frame;
-extern canfdDJ_all_t frame_t;                // 电机遥测数据，直接转发数据不进行单个赋值
-extern canfdYC_all canfd_yc_all;         // 遥测数据
+extern canfdDJ_all_t frame_t;    // 电机遥测数据，直接转发数据不进行单个赋值
+extern canfdYC_all canfd_yc_all; // 遥测数据
+extern getADCValue ADCValue;     // 获取到的所有ADC值的缓存
+// 星间模块 工作模式
+extern uint8_t xj_work_mode;
+extern canfdInterstellarModuleConfig xjData; // 星间模块遥测数据
+
+CANFD_RXInfoTypeDef can0Info[16];
+CANFD_RXInfoTypeDef can1Info[16];
 // 测试电机数据包接收功能
 void test_motor_packet_receive(void);
 
@@ -38,7 +46,7 @@ uint32_t ptr1 = 0;
 uint8_t data2[64] = {0};
 uint32_t ptr2 = 0;
 // 串口3
-uint8_t data3[64] = {0};
+uint8_t data3[1024] = {0}; // 缓存1024字节
 uint32_t ptr3 = 0;
 // 串口4
 uint8_t data4[64] = {0};
@@ -54,12 +62,12 @@ uint8_t canfd_M_sel;
 
 uint8_t run = 0;
 uint8_t Canfd0rx_flags = 0;
-uint32_t Canfd0rx_bytes = 0;
+
 uint8_t Canfd1rx_flags = 0;
 uint8_t Canfd2rx_flags = 0;
 uint8_t Canfd3rx_flags = 0;
-uint32_t Canfd1rx_bytes = 0;
-uint32_t Canfd2rx_bytes = 0;
+uint32_t Canfd0rx_bytes[16] = 0;
+uint32_t Canfd1rx_bytes[16] = 0;
 
 uint32_t err_status0;
 uint32_t err_status1;
@@ -83,9 +91,12 @@ uint8_t Send_data1[] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55,
                         0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55,
                         0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
 
-uint8_t Receive_data1[64] = {0};
-uint8_t Receive_data0[64] = {0};
-
+uint8_t Receive_data1[16][64] = {0}; // 最大接受16个64字节数据
+uint8_t Receive_data0[16][64] = {0};
+uint8_t can0Ptr = 0;
+uint8_t can1Ptr = 0;
+uint8_t curCan0Ptr = 0;
+uint8_t curCan1Ptr = 0;
 void main_iic_test()
 {
     // User_appTS_uart6_Init(115200);//调试串口设置
@@ -96,13 +107,14 @@ void main_iic_test()
     // User_APP1_I2C3_Init();
 
     Printf("The IIC has init success!\r\n");
-
+    std_feed_dog();
 #if 1 // 配电采集测试
     uint8_t addr = 0x48;
     uint16_t adc_value = 0;
     float voltage = 0;
     float tmp2 = 0;
     float tmp = 0;
+    uint8_t chan = 0;
     // while(1)
     {
         Printf("addr=0x%x\r\n", addr);
@@ -133,7 +145,9 @@ void main_iic_test()
             }
 
             Printf("Channel %d: ADC=%d, Voltage=%fV\r\n", channel, adc_value, voltage); // 调试打印的值不对，内存中是正确的，打印出来就变了
+            ADCValue.small_power_peidian_adc[chan++] = adc_value;
             delay_ms(20);
+            std_feed_dog();
         }
         delay_ms(20);
 
@@ -165,6 +179,8 @@ void main_iic_test()
             }
             Printf("Channel %d: ADC=%d, Voltage=%fV\r\n", channel, adc_value, voltage); // 调试打印的值不对，内存中是正确的，打印出来就变了
             delay_ms(20);
+            ADCValue.small_power_peidian_adc[chan++] = adc_value;
+            std_feed_dog();
         }
         delay_ms(20);
 
@@ -195,6 +211,8 @@ void main_iic_test()
             }
             Printf("Channel %d: ADC=%d, Voltage=%fV\r\n", channel, adc_value, voltage); // 调试打印的值不对，内存中是正确的，打印出来就变了
             delay_ms(20);
+            ADCValue.small_power_peidian_adc[chan++] = adc_value;
+            std_feed_dog();
         }
         delay_ms(20);
 
@@ -223,13 +241,16 @@ void main_iic_test()
                 tmp2 = tmp * 2.5f;
                 voltage = tmp2 / 5.6f * 80.6f;
             }
-            Printf("Channel %d: ADC=%d, Voltage=%fV\r\n", channel, adc_value, voltage); // 调试打印的值不对，内存中是正确的，打印出来就变了
+            Printf("Channel %d: ADC=%d, Voltage=%fV\r\n", channel, adc_value, voltage);
             delay_ms(20);
+            ADCValue.small_power_peidian_adc[chan++] = adc_value;
+            std_feed_dog();
         }
         delay_ms(20);
 
         // I2C3的采集
         addr = 0x4b;
+        chan = 0; // 大功率电器重置为0
         Printf("I2C1: addr=0x%x\r\n", addr);
         // 循环读取0~7通道
         for (uint8_t channel = 0; channel < 8; channel++)
@@ -254,13 +275,15 @@ void main_iic_test()
                 tmp2 = tmp * 2.5f;
                 voltage = tmp2 / 5.6f * 80.6f;
             }
-            Printf("Channel %d: ADC=%d, Voltage=%fV\r\n", channel, adc_value, voltage); // 调试打印的值不对，内存中是正确的，打印出来就变了
+            Printf("Channel %d: ADC=%d, Voltage=%fV\r\n", channel, adc_value, voltage);
             delay_ms(20);
+            ADCValue.large_power_peidian_adc[chan++] = adc_value;
+            std_feed_dog();
         }
         delay_ms(20);
     }
 #endif
-#if 1 // 18b20测试
+#if 0 // 18b20测试
 
     OWGetRom();
     while (1)
@@ -457,7 +480,6 @@ void main()
     User_APP0_I2C2_Init();
     User_APP1_I2C3_Init();
 
-
 #if 0 // 4路串口发送接收测试
     //uint8_t data1 = 0x4a;
     User_appTS_uart6_Init(115200);
@@ -534,7 +556,7 @@ void main()
     }
 #endif
 
-#if 0 //i2c测试, 里边有i2c的ADC采集测试和one-wire测试
+#if 0 // i2c测试, 里边有i2c的ADC采集测试和one-wire测试
     User_appTS_uart6_Init(115200);//调试串口设置
     main_iic_test();
 #endif
@@ -550,10 +572,14 @@ void main()
     User_canfd_enable(); //  PG4,PH8, User_all_enable中已经使能了
     ADC_SoftRegularConvert(ADC1);
     ADC_SoftRegularConvert(ADC2);
+
+    // 上电默认星间模块是配置模式
+    xingjian_change_config_mode(0, 3);
+    xingjian_change_config_mode(1, 3);
     Printf("CANFD V7_TEC_OK.\r\n");
     Printf("The CAN FD has init.\r\n");
 
-    //one-wire init
+    // one-wire init
     OWGetRom();
     Printf("The OWGetRom init success\r\n");
     /* Initialize print usart */
@@ -570,105 +596,90 @@ void main()
     CANFD1_Frame_Init(); // 5M
 
 #endif
-#if 0
-    uint16_t count = 0;
-    uint8_t yctest[] = {0xEB, 0x90, 0x00, 0x00, 0x03, 0x05, 0xFF, 0x01, 0x08};
-    while (1)
-    {
-        if (count++ >= 0xf0)
-        {
-            for (int i = 0; i < 9; i++)
-            {
-                USART_SendData(USART5, yctest[i]);
-                delay_ms(10);
-            }
-            count = 0;
-            Printf("send dianji all success\r\n");
-        }
-        
-        delay_ms(10);
-        if (ptr1 >= 63)
-        {
-            receive_flag = 0;
-            Printf("uart recv data! len=%d\r\n", ptr1);
-            for (int i = 0; i < ptr1; i++)
-                Printf(" 0x%x", data1[i]);
-            Printf("-------->\r\n");
-            ptr1 = 0;
-        }
-    }
-
-    if (0)
-    {
-        //      CANFD_Transmit(CANFD0, TB1, Send_data1, Byte_64);
-        delay_ms(100);
-        //       CANFD_Transmit(CANFD1, TB1, Send_data1, Byte_64);
-        delay_ms(100);
-    }
-#endif
-    /* Write send data */
-
-    // User_ADC_GetAllValue();
-    // PrintAllADCValues();
 
     while (1)
     {
         // CANFD_Transmit(CANFD0, TB1, Send_data1, Byte_64);
-        // CANFD_Transmit(CANFD0, TB1, Send_data1, Byte_8);
-        // delay_ms(100);
+        //   CANFD_Transmit(CANFD0, TB1, Send_data1, Byte_8);
+        //   delay_ms(100);
         // CANFD_Transmit(CANFD1, TB1, Send_data1, Byte_64);
-        // CANFD_Transmit(CANFD1, TB1, Send_data1, Byte_8);
-        // delay_ms(100);
+        //  CANFD_Transmit(CANFD1, TB1, Send_data1, Byte_8);
+        //  delay_ms(100);
         /* wj-20250728-v1 */
         /* Write send data */
         // CANFD_Transmit(CANFD1, TB1, Send_data1, Byte_8);
 
-        if (Canfd1rx_flags == 1)
+        if (can1Ptr >= 1)
         {
-            Printf("Canfd1rx_flags vaule is %d \r\n ", Canfd1rx_flags); // wj
-            Canfd1rx_flags = 0;
-            memset(Receive_data1, 0, 64);
-            Canfd1rx_bytes = CANFD_GetReceiveData(CANFD1, Receive_data1);
-            // CANFD_Transmit(CANFD1, TB1, Receive_data1, Byte_8);
-            // Printf("Canfd1rx_bytes vaule is %d \r\n ", Canfd1rx_bytes);  //wj
+            if (curCan1Ptr >= can1Ptr)
+            {
+                can1Ptr = 0;
+                curCan1Ptr = 0;
+                continue;
+            }
+            
+            Printf("can1Ptr vaule is %d \r\n ", curCan1Ptr); 
+            Printf("Canfd1rx_bytes vaule is %d id=0x%x\r\n ", Canfd1rx_bytes[curCan1Ptr], can1Info[curCan1Ptr].CANFD_CurrentFrame_ID); // wj
             // Printf("canfd1 rx: ");
-            if (can_xieyi_test(Receive_data1, Canfd1rx_bytes) < 0)
+            if (can_xieyi_test(Receive_data1[curCan1Ptr], Canfd1rx_bytes[curCan1Ptr]) < 0)
             {
                 Printf("cmd parse error,cmd not support\r\n");
             }
+            // can1Ptr--;
+            curCan1Ptr++;
+            delay_ms(200);
         }
 
-        if (Canfd0rx_flags == 1)
+        if (can0Ptr >= 1)
         {
-            Printf("Canfd0rx_flags vaule is %d \r\n ", Canfd0rx_flags); // wj
-            Canfd0rx_flags = 0;
-            memset(Receive_data0, 0, 64);
-            Canfd0rx_bytes = CANFD_GetReceiveData(CANFD0, Receive_data0);
-            // CANFD_Transmit(CANFD1, TB1, Receive_data1, Byte_8);
-            // Printf("Canfd0rx_bytes vaule is %d \r\n ", Canfd0rx_bytes);  //wj
+            if (curCan0Ptr >= can0Ptr)
+            {
+                can0Ptr = 0;
+                curCan0Ptr = 0;
+                continue;
+            }
+            Printf("can0Ptr vaule is %d \r\n ", curCan0Ptr); 
+            Printf("Canfd0rx_bytes vaule is %d id=0x%x\r\n ", Canfd0rx_bytes[curCan0Ptr], can0Info[curCan0Ptr].CANFD_CurrentFrame_ID); // wj
             // Printf("canfd0 rx: ");
-            if (can_xieyi_test0(Receive_data0, Canfd0rx_bytes) < 0)
+            if (can_xieyi_test0(Receive_data0[curCan0Ptr], Canfd0rx_bytes[curCan0Ptr]) < 0)
             {
                 Printf("cmd parse error,cmd not support\r\n");
             }
+            // can0Ptr--;
+            curCan0Ptr++;
+            delay_ms(200);
         }
         // delay_ms(200);
         delay_ms(50);
 
+        // 总线恢复用的
         CANFD_RecoverFromBusOff(CANFD0);
         CANFD_RecoverFromBusOff(CANFD1);
 
 #if 1
-        //定时循环执行一次的程序放到这里
-        if (clock_adc_get++ > 100)
+        // 定时循环执行一次的程序放到这里
+        if (clock_adc_get % 99 == 0)
         {
+            Printf("clock_adc_get =%d\r\n", clock_adc_get);
+            std_feed_dog();
+        }
+        clock_adc_get = clock_adc_get + 1;
+        if (clock_adc_get > 0xa00)
+        {
+            std_feed_dog();
 #if 1
+            // 16路对外采集温度或电压模拟量 + 4路对内采集温度或电压
             User_ADC_GetAllValue();
             PrintAllADCValues();
 #endif
 
 #if 1
-            //温度采集
+            // 大功率和小功率 配电模拟量,电压和电流
+            main_iic_test();
+#endif
+
+#if 1
+            // 温度采集
             Read_Temperature();
             clock_adc_get = 0;
             delay_ms(200);
@@ -676,8 +687,8 @@ void main()
 #endif
 
 #if 1
-            //星间模块当前状态获取
-            xingjian_get_config(1,&canfd_yc_all.xjData); // 获取星间模块的配置参数
+            // 星间模块当前状态获取
+            xingjian_get_config(0, &xjData); // 获取星间模块的配置参数
 #endif
         }
 #endif
@@ -694,7 +705,32 @@ void main()
 
             ptr4 = 0;
         }
-        if (ptr1 >= 63)//电机遥测数据
+#if 0
+        // 星间模块接收到非配置数据后，不转发到OBC， 直接保存到缓冲区中，
+        if (ptr3 >= 1)
+        {
+            receive_flag = 0;
+            Printf("uart recv data! len=%d\r\n", ptr3);
+            for (int i = 0; i < ptr3; i++)
+                Printf(" 0x%x", data3[i]);
+            Printf("-------->\r\n");
+            if (xj_work_mode == 0) // 透传模式直接返回
+            {
+                // 调用发送指令，返回数据
+                xingjian_tran_data_obc(data3, ptr3);
+            }
+            else if (xj_work_mode == 2) // 配置模式，用来判断是不是=ok
+            {
+                // 不需要返回，在遥测中判断即可
+            }
+            else
+            {
+            }
+
+            ptr3 = 0;
+        }
+#endif
+        if (ptr1 >= 63) // 电机遥测数据
         {
             receive_flag = 0;
             Printf("uart recv data! len=%d\r\n", ptr1);

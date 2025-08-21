@@ -4,7 +4,7 @@
  * @Autor: ruog__
  * @Date: 2025-07-23 16:26:18
  * @LastEditors: ruog__
- * @LastEditTime: 2025-05-03 06:19:32
+ * @LastEditTime: 2025-05-05 04:52:32
  */
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __XINGJIAN__H
@@ -19,7 +19,7 @@
 #include "as32x601_plic.h"
 
 /* Exported define -----------------------------------------------------------*/
-
+#include "canfd_xieyi.h"
 /* Exported functions ------------------------------------------------------- */
 // 定义AT指令类型枚举（按参数数量分类）
 typedef enum {
@@ -95,7 +95,7 @@ typedef enum
 extern uint8_t at_send_cmd(AtCommandType cmd, int param1, int param2);
 
 //透传文件数据转发接口
-extern int8_t forward_transparent_file_data(const uint8_t *file_data, uint16_t data_len);
+extern int8_t forward_transparent_file_data( uint8_t *file_data, uint16_t data_len);
 
 // 透传文件任务缓存结构体
 typedef struct {
@@ -136,8 +136,9 @@ extern int xingjian_get_config(uint8_t xingjianNum, canfdInterstellarModuleConfi
 extern void xj_transparent_data_parse_and_send(void);
 // 星间模块响应数据处理函数声明
 extern void xingjian_response_process(void);
-
-
+//透传 将数据转发到星间模块
+extern uint8_t obc_tran_data_xingjian(uint8_t *data, uint16_t dataLen);
+extern uint8_t xingjian_tran_data_obc(uint8_t canChan, uint8_t *data, uint16_t dataLen);
 
 // 星间模块AT指令响应相关变量声明
 extern uint8_t xingjian_response_buffer[32];

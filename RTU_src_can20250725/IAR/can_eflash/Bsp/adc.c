@@ -3,9 +3,9 @@
 #include "string.h"
 #include "myprintf.h"
 #include "stdio.h"
-
+#include "canfd_xieyi.h"
 getADCValue ADCValue; // 获取到的所有ADC值的缓存
-
+extern canfdYC_all canfd_yc_all;         // 遥测数据
 // ADC0-PA4--ADC1_IN5
 // ADC1-PA5--ADC1_IN6
 // ADC2-PA6--ADC1_IN7
@@ -23,7 +23,7 @@ getADCValue ADCValue; // 获取到的所有ADC值的缓存
 // ADC14-PG0--ADC2_IN3
 // ADC15-PG1--ADC2_IN4
 // ADCVERF-PE7--ADC2_IN5
-
+extern void std_feed_dog();
 void User_ADC_All_Init()
 {
 
@@ -334,7 +334,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC ADC_RSEQ_0  PA4  value is %d\r\n", adc_value);
     ADCValue.outValue[0] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC, ADC_RSEQ_1) == RESET)
     {
     }
@@ -342,7 +342,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC ADC_RSEQ_1  PA5  value is %d\r\n", adc_value);
     ADCValue.outValue[1] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC, ADC_RSEQ_2) == RESET)
     {
     }
@@ -350,7 +350,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC ADC_RSEQ_2  PA6  value is %d\r\n", adc_value);
     ADCValue.outValue[2] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC, ADC_RSEQ_3) == RESET)
     {
     }
@@ -358,7 +358,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC ADC_RSEQ_3  PA7  value is %d\r\n", adc_value);
     ADCValue.outValue[3] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC, ADC_RSEQ_4) == RESET)
     {
     }
@@ -366,7 +366,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC ADC_RSEQ_4  PC4  value is %d\r\n", adc_value);
     ADCValue.outValue[4] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC, ADC_RSEQ_5) == RESET)
     {
     }
@@ -374,7 +374,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC ADC_RSEQ_5  PC5  value is %d\r\n", adc_value);
     ADCValue.outValue[5] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC, ADC_RSEQ_6) == RESET)
     {
     }
@@ -382,7 +382,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC ADC_RSEQ_6  PB0  value is %d\r\n", adc_value);
     ADCValue.outValue[6] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC, ADC_RSEQ_7) == RESET)
     {
     }
@@ -390,7 +390,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC ADC_RSEQ_7  PB1  value is %d\r\n", adc_value);
     ADCValue.outValue[7] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC, ADC_RSEQ_8) == RESET)
     {
     }
@@ -398,7 +398,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC ADC_RSEQ_8  PB2  value is %d\r\n", adc_value);
     ADCValue.outValue[8] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC, ADC_RSEQ_9) == RESET)
     {
     }
@@ -406,7 +406,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC ADC_RSEQ_9  PF11  value is %d\r\n", adc_value);
     ADCValue.outValue[9] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC, ADC_RSEQ_10) == RESET)
     {
     }
@@ -414,6 +414,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC ADC_RSEQ_10  PF12  value is %d\r\n", adc_value);
     ADCValue.outValue[10] = adc_value;
     delay_ms(500);
+    std_feed_dog();
 #if 1
     // ADC2
     while (ADC_GetFlagStatus(ADC2, ADC_FLAG_EOC, ADC_RSEQ_0) == RESET)
@@ -423,7 +424,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC2 ADC_RSEQ_0  PF13 value is %d\r\n", adc_value);
     ADCValue.outValue[11] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC2, ADC_FLAG_EOC, ADC_RSEQ_1) == RESET)
     {
     }
@@ -431,7 +432,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC2 ADC_RSEQ_1  PF14 value is %d\r\n", adc_value);
     ADCValue.outValue[12] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC2, ADC_FLAG_EOC, ADC_RSEQ_2) == RESET)
     {
     }
@@ -439,7 +440,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC2 ADC_RSEQ_2  PF15 value is %d\r\n", adc_value);
     ADCValue.outValue[13] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC2, ADC_FLAG_EOC, ADC_RSEQ_3) == RESET)
     {
     }
@@ -447,7 +448,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC2 ADC_RSEQ_3  PG0 value is %d\r\n", adc_value);
     ADCValue.outValue[14] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC2, ADC_FLAG_EOC, ADC_RSEQ_4) == RESET)
     {
     }
@@ -455,6 +456,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC2 ADC_RSEQ_4  PG1 value is %d\r\n", adc_value);
     ADCValue.outValue[15] = adc_value;
     delay_ms(500);
+    std_feed_dog();
     //============内部电压采集开始
     while (ADC_GetFlagStatus(ADC2, ADC_FLAG_EOC, ADC_RSEQ_5) == RESET)
     {
@@ -463,7 +465,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC2 ADC_RSEQ_5  PE7 value is %d\r\n", adc_value);
     ADCValue.inValue[0] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC2, ADC_FLAG_EOC, ADC_RSEQ_6) == RESET)
     {
     }
@@ -471,7 +473,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC2 ADC_RSEQ_6  PE14 value is %d\r\n", adc_value);
     ADCValue.inValue[1] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC2, ADC_FLAG_EOC, ADC_RSEQ_7) == RESET)
     {
     }
@@ -479,7 +481,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC2 ADC_RSEQ_7  PE15 value is %d\r\n", adc_value);
     ADCValue.inValue[2] = adc_value;
     delay_ms(500);
-
+    std_feed_dog();
     while (ADC_GetFlagStatus(ADC2, ADC_FLAG_EOC, ADC_RSEQ_8) == RESET)
     {
     }
@@ -487,6 +489,7 @@ uint8_t User_ADC_GetAllValue()
     Printf("ADC2 ADC_RSEQ_8  PB10 value is %d\r\n", adc_value);
     ADCValue.inValue[3] = adc_value;
     delay_ms(500);
+    std_feed_dog();
 #endif
 
     return 0;
@@ -504,7 +507,7 @@ uint8_t PrintAllADCValues()
     //     Printf("Error: ADC data pointer is NULL!\r\n");
     //     return -1;
     // }
-
+    std_feed_dog();
     // Print 16-channel output voltage analog values
     Printf("===== 16-channel Output Voltage Analog Values =====\r\n");
     Printf("Channel 0 (PA4): %d\r\n", ADCValue.outValue[0]);
@@ -516,6 +519,7 @@ uint8_t PrintAllADCValues()
     Printf("Channel 6 (PB0): %d\r\n", ADCValue.outValue[6]);
     Printf("Channel 7 (PB1): %d\r\n", ADCValue.outValue[7]);
     Printf("Channel 8 (PB2): %d\r\n", ADCValue.outValue[8]);
+    std_feed_dog();
     Printf("Channel 9 (PF11): %d\r\n", ADCValue.outValue[9]);
     Printf("Channel 10 (PF12): %d\r\n", ADCValue.outValue[10]);
     Printf("Channel 11 (PF13): %d\r\n", ADCValue.outValue[11]);
@@ -523,13 +527,13 @@ uint8_t PrintAllADCValues()
     Printf("Channel 13 (PF15): %d\r\n", ADCValue.outValue[13]);
     Printf("Channel 14 (PG0): %d\r\n", ADCValue.outValue[14]);
     Printf("Channel 15 (PG1): %d\r\n", ADCValue.outValue[15]);
-
+    std_feed_dog();
     // Print 4-channel input voltage analog values
     Printf("===== 4-channel Input Voltage Analog Values =====\r\n");
     Printf("Internal Channel 0 (PE7): %d\r\n", ADCValue.inValue[0]);
     Printf("Internal Channel 1 (PE14): %d\r\n", ADCValue.inValue[1]);
     Printf("Internal Channel 2 (PE15): %d\r\n", ADCValue.inValue[2]);
     Printf("Internal Channel 3 (PB10): %d\r\n", ADCValue.inValue[3]);
-
+    std_feed_dog();
     return 0;
 }

@@ -10,10 +10,14 @@
 #include "as32x601_plic.h"
 //16路外部温度或电压采集
 //4路内部温度或电压采集
+//16路小功率配电电压电流采集
+//2路大功率配电电压电流采集
 typedef struct 
 {
     uint16_t outValue[16];
     uint16_t inValue[4];
+    uint16_t small_power_peidian_adc[32]; // 16路小功率电压电流值 --就是小电流
+    uint16_t large_power_peidian_adc[4];  // 2路大功率电压电流值  --就是大电流
 }getADCValue;
 
 /* Exported define -----------------------------------------------------------*/

@@ -6,6 +6,9 @@
 #include "as32x601_canfd.h"
 #include "as32x601_plic.h"
 #include "delay.h"
+#include "myprintf.h"
+
+extern void std_feed_dog();
 /*
  * Function:        User_I2C_Init
  * Description:     Configure I2C
@@ -320,11 +323,12 @@ uint8_t ads7828_read_channel(I2C_TypeDef *hi2c, uint8_t channel, uint16_t *adc_v
     FlagStatus tx_status, rx_status;
 
     // 检查通道合法性
-    if (channel > 7 || adc_value == NULL)
+    if (channel > 7 || adc_value == NULL || channel < 0)
     {
-        return 1;
+        Printf("ads7828_read_channel arg error channel=%d\r\n", channel);
+        return -1;
     }
-
+    Printf("channel=%d,ADS7828_ADDR=0x%x\r\n", channel,ADS7828_ADDR);
     // 构建控制字：单端输入(SD=1)，内部参考+ADC使能(PD1=1, PD0=1)，通道选择(C2~C0=channel)
     control_word = 0x8c | (channel << 4); // 0x80 = 1000 0000（标准配置）
     // Printf("I2C transmit failed (channel %d)\r\n", channel);
@@ -333,15 +337,16 @@ uint8_t ads7828_read_channel(I2C_TypeDef *hi2c, uint8_t channel, uint16_t *adc_v
     if (tx_status != SET)
     {
         Printf("I2C transmit failed (channel %d)\r\n", channel);
-        return 1;
+        return -1;
     }
     delay_ms(20); // 不加延迟就读取报错了
+    std_feed_dog();
     // 步骤2：读取转换结果（2字节）
     rx_status = I2C_Master_Receive(hi2c, ADS7828_ADDR, rx_data, 2, I2C_TIMEOUT);
     if (rx_status != SET)
     {
         Printf("I2C receive failed (channel %d)\r\n", channel);
-        return 1;
+        return -1;
     }
 
     // Printf("rx_data[0] = 0x %x, rx_data[1] = 0x %x\r\n", rx_data[0], rx_data[1]);
